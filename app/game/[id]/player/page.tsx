@@ -103,6 +103,7 @@ export default function PlayerPage() {
 
   return (
     <main className="min-h-screen bg-bloom-cream flex flex-col items-center justify-center gap-6 p-6">
+      <img src="/logo.svg" alt="BLOOM" className="w-36" />
       <h1 className="font-title text-3xl text-bloom-violet">🌿 {player.pseudo}</h1>
 
       {game?.phase === 'LOBBY' && (

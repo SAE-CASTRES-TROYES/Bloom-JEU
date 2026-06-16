@@ -68,7 +68,7 @@ async function creerPartie() {
 
   return (
     <main className="min-h-screen bg-bloom-cream flex flex-col items-center justify-center gap-8 p-8">
-      <h1 className="font-title text-5xl text-bloom-violet">🌸 BLOOM</h1>
+      <img src="/logo.svg" alt="BLOOM" className="w-64" />
 
       <input
         className="border-2 border-bloom-violet-pale rounded-2xl p-3 text-lg w-64 bg-white shadow-md focus:outline-none focus:border-bloom-violet"

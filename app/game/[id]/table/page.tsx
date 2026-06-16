@@ -147,7 +147,9 @@ export default function TablePage() {
 
   return (
     <main className="min-h-screen bg-bloom-black text-white flex flex-col items-center justify-center gap-8 p-8">
-      <h1 className="font-title text-6xl text-bloom-violet-light">🌸 BLOOM</h1>
+      <div className="bg-white rounded-2xl px-8 py-4 shadow-md">
+        <img src="/logo.svg" alt="BLOOM" className="w-80" />
+      </div>
 
       {game?.phase === 'LOBBY' && (
         <>
