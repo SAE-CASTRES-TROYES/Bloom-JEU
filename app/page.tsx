@@ -67,11 +67,11 @@ async function creerPartie() {
   }
 
   return (
-    <main className="min-h-screen bg-green-50 flex flex-col items-center justify-center gap-8 p-8">
-      <h1 className="text-5xl font-bold text-green-800">🌸 BLOOM</h1>
+    <main className="min-h-screen bg-bloom-cream flex flex-col items-center justify-center gap-8 p-8">
+      <h1 className="font-title text-5xl text-bloom-violet">🌸 BLOOM</h1>
 
       <input
-        className="border-2 border-green-300 rounded-xl p-3 text-lg w-64"
+        className="border-2 border-bloom-violet-pale rounded-2xl p-3 text-lg w-64 bg-white shadow-md focus:outline-none focus:border-bloom-violet"
         placeholder="Ton pseudo"
         value={pseudo}
         onChange={e => setPseudo(e.target.value)}
@@ -79,7 +79,7 @@ async function creerPartie() {
 
       <div className="flex flex-col gap-4 w-64">
         <select
-          className="border-2 border-green-300 rounded-xl p-3 text-lg"
+          className="border-2 border-bloom-violet-pale rounded-2xl p-3 text-lg bg-white shadow-md"
           value={nbJoueurs}
           onChange={e => setNbJoueurs(Number(e.target.value))}
         >
@@ -89,14 +89,14 @@ async function creerPartie() {
         <button
           onClick={creerPartie}
           disabled={loading}
-          className="bg-green-600 text-white rounded-xl p-3 text-lg font-bold hover:bg-green-700"
+          className="bg-bloom-violet text-white rounded-2xl p-3 text-lg font-bold shadow-md hover:bg-bloom-violet/90 disabled:opacity-50"
         >
           🌱 Créer une partie (Grand Arbre)
         </button>
 
         <div className="flex gap-2">
           <input
-            className="border-2 border-green-300 rounded-xl p-3 text-lg flex-1"
+            className="border-2 border-bloom-violet-pale rounded-2xl p-3 text-lg flex-1 bg-white shadow-md focus:outline-none focus:border-bloom-violet"
             placeholder="Code partie"
             value={code}
             onChange={e => setCode(e.target.value)}
@@ -104,9 +104,9 @@ async function creerPartie() {
           <button
             onClick={rejoindrePartie}
             disabled={loading}
-            className="bg-pink-500 text-white rounded-xl p-3 text-lg font-bold hover:bg-pink-600"
+            className="bg-bloom-fuchsia text-white rounded-2xl p-3 text-lg font-bold shadow-md hover:bg-bloom-fuchsia/90 disabled:opacity-50"
           >
-            → 
+            →
           </button>
         </div>
       </div>
