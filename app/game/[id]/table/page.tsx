@@ -2,10 +2,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { useRouter } from 'next/navigation'
 import { construireDeck, distribuerRoles, tirerMission } from '@/lib/game'
 
 export default function TablePage() {
   const { id } = useParams<{ id: string }>()
+  const router = useRouter()
   const [game, setGame] = useState<any>(null)
   const [players, setPlayers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -139,33 +141,39 @@ export default function TablePage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-bloom-black text-white flex items-center justify-center">
+      <main className="min-h-screen bg-bloom-black text-white flex items-center justify-center px-5">
         <p className="font-title text-2xl">Chargement...</p>
       </main>
     )
   }
 
   return (
-    <main className="min-h-screen bg-bloom-black text-white flex flex-col items-center justify-center gap-8 p-8">
+    <main className="min-h-screen bg-bloom-black text-white flex flex-col items-center px-5 py-10 gap-6">
+      <button
+        onClick={() => router.push('/')}
+        className="fixed top-4 left-4 text-bloom-violet-light text-base font-semibold bg-transparent"
+      >
+        ← Accueil
+      </button>
       <div className="bg-white rounded-2xl px-8 py-4 shadow-md">
-        <img src="/logo.svg" alt="BLOOM" className="w-80" />
+        <img src="/logo.svg" alt="BLOOM" className="w-64" />
       </div>
 
       {game?.phase === 'LOBBY' && (
         <>
-          <div className="bg-bloom-violet/20 border border-bloom-violet-pale/30 rounded-2xl p-6 text-center shadow-md">
-            <p className="text-bloom-violet-pale text-lg">Code de la partie</p>
-            <p className="font-mono text-5xl font-bold tracking-widest text-bloom-gold">{game?.code}</p>
-            <p className="text-bloom-violet-pale mt-2">Les joueurs rejoignent sur leur téléphone</p>
+          <div className="w-[90%] max-w-lg mx-auto bg-bloom-gray-dark rounded-2xl p-6 text-center shadow-md">
+            <p className="text-bloom-violet-light text-base">Code de la partie</p>
+            <p className="font-title tracking-widest text-bloom-gold text-5xl mt-1">{game?.code}</p>
+            <p className="text-bloom-violet-light text-base mt-2">Les joueurs rejoignent sur leur téléphone</p>
           </div>
 
-          <div className="bg-bloom-violet/10 border border-bloom-violet-pale/20 rounded-2xl p-6 w-full max-w-lg shadow-md">
-            <h2 className="font-title text-2xl mb-4 text-bloom-violet-light">
+          <div className="w-[90%] max-w-lg mx-auto bg-bloom-gray-dark rounded-2xl p-6 shadow-md">
+            <h2 className="font-title text-xl mb-4 text-bloom-violet-pale">
               Joueurs connectés ({joueurs.length}/{game?.nb_joueurs})
             </h2>
             <div className="flex flex-col gap-2">
               {joueurs.map(p => (
-                <div key={p.id} className="bg-bloom-violet/20 rounded-xl p-3 text-lg">
+                <div key={p.id} className="bg-bloom-gray-dark rounded-xl px-4 py-3 text-base text-bloom-cream-light">
                   🌿 {p.pseudo}
                 </div>
               ))}
@@ -176,7 +184,7 @@ export default function TablePage() {
             <button
               onClick={lancerPartie}
               disabled={lancement}
-              className="bg-bloom-violet text-white rounded-2xl p-4 text-2xl font-bold shadow-md hover:bg-bloom-violet/90 disabled:opacity-50"
+              className="w-[90%] max-w-lg mx-auto min-h-[52px] bg-bloom-gold text-bloom-black rounded-2xl px-6 text-xl font-bold shadow-md disabled:opacity-50"
             >
               Lancer la partie 🌱
             </button>
@@ -185,16 +193,16 @@ export default function TablePage() {
       )}
 
       {game?.phase === 'ROLE' && (
-        <div className="bg-bloom-violet/10 border border-bloom-violet-pale/20 rounded-2xl p-8 w-full max-w-lg shadow-md text-center">
-          <p className="font-title text-3xl text-bloom-violet-light mb-6">
+        <div className="w-[90%] max-w-lg mx-auto bg-bloom-gray-dark rounded-2xl p-6 shadow-md text-center">
+          <p className="font-title text-2xl text-bloom-violet-pale mb-4">
             Distribution des rôles en cours... 🌸
           </p>
-          <p className="text-xl text-bloom-gold-light">
+          <p className="text-lg text-bloom-gold">
             {nbConfirmes} joueur{nbConfirmes > 1 ? 's' : ''} ont découvert leur rôle / {game?.nb_joueurs}
           </p>
           <div className="flex flex-col gap-2 mt-6">
             {joueurs.map(p => (
-              <div key={p.id} className="bg-bloom-violet/20 rounded-xl p-3 text-lg flex justify-between">
+              <div key={p.id} className="bg-bloom-gray-dark rounded-xl px-4 py-3 text-base flex justify-between text-bloom-cream-light">
                 <span>🌿 {p.pseudo}</span>
                 <span>{p.mission_accomplie ? '✓' : '⏳'}</span>
               </div>
