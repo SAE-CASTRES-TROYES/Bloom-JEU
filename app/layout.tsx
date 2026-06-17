@@ -33,7 +33,7 @@ export default function RootLayout({
       lang="fr"
       className={`${alice.variable} ${karla.variable} ${dancingScript.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-body bg-bloom-cream text-bloom-black">{children}</body>
+      <body className="min-h-full flex flex-col font-body bg-bloom-cream-light text-bloom-gray-dark">{children}</body>
     </html>
   );
 }

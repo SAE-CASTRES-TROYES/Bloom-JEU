@@ -1,26 +1,32 @@
 @import "tailwindcss";
 
 :root {
-  --background: #FDFAF6;
-  --foreground: #1A1A2E;
+  --background: #FCF6E2;
+  --foreground: #3D2E46;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  --color-bloom-violet: #5B4B8A;
-  --color-bloom-violet-light: #9B89C4;
-  --color-bloom-violet-pale: #C4B8E0;
-  --color-bloom-gold: #C9A84C;
-  --color-bloom-gold-light: #E8D48A;
-  --color-bloom-black: #1A1A2E;
-  --color-bloom-fuchsia: #D4447A;
-  --color-bloom-pink: #F0A0B8;
-  --color-bloom-sage: #6B8F6B;
-  --color-bloom-sage-light: #B8D4B8;
-  --color-bloom-cream: #FDFAF6;
-  --color-bloom-burgundy: #8B1A1A;
+  --color-bloom-violet-dark: #4F4473;
+  --color-bloom-violet-medium: #8F77C7;
+  --color-bloom-violet-light: #CABFE3;
+  --color-bloom-violet-pale: #E4DDF2;
+  --color-bloom-gold: #E9C75F;
+  --color-bloom-gold-light: #F1DA8C;
+  --color-bloom-cream: #F8ECBF;
+  --color-bloom-cream-light: #FCF6E2;
+  --color-bloom-black: #2E2433;
+  --color-bloom-gray-dark: #3D2E46;
+  --color-bloom-rose: #CF6B88;
+  --color-bloom-rose-light: #F9DCE3;
+  --color-bloom-green: #6C855A;
+  --color-bloom-green-light: #DBE4D4;
+  --color-bloom-blue: #95C6D8;
+  --color-bloom-blue-light: #B0DBEB;
+  --color-bloom-blue-very-light: #C1ECFD;
+  --color-bloom-blue-pale: #DAEDF5;
 
   --font-title: var(--font-alice), serif;
   --font-body: var(--font-karla), sans-serif;
@@ -31,4 +37,16 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-body);
+}
+
+@layer base {
+  button:not(:disabled),
+  select,
+  [role="button"] {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
 }
