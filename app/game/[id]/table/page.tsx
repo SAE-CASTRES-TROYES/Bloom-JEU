@@ -3,7 +3,10 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { construireDeck, distribuerRoles, tirerMission, FLEURS, FLEUR_CONFIGS, CARTE_INFO } from '@/lib/game'
+import { construireDeck, distribuerRoles, tirerMission, getNbRonces, FLEURS, FLEUR_CONFIGS, CARTE_INFO } from '@/lib/game'
+import { t } from '@/lib/translations'
+import { LangSwitcher } from '@/app/lang-switcher'
+import { useLang } from '@/app/providers'
 
 export default function TablePage() {
   const { id } = useParams<{ id: string }>()
@@ -13,8 +16,8 @@ export default function TablePage() {
   const [votes, setVotes]     = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [lancement, setLancement] = useState(false)
+  const { lang } = useLang()
 
-  // État local pour l'affichage du vote
   const [resultatVote, setResultatVote] = useState<{ egalite: boolean; vainqueur?: any; nbVotes?: number } | null>(null)
   const [joueurRevele, setJoueurRevele] = useState<{ joueur: any; role: string } | null>(null)
 
@@ -61,7 +64,6 @@ export default function TablePage() {
     }
   }, [id])
 
-  // Charge les votes du tour courant quand on entre en VOTE
   useEffect(() => {
     if (game?.phase !== 'VOTE') return
     setResultatVote(null)
@@ -74,15 +76,23 @@ export default function TablePage() {
       .then(({ data }) => { if (data) setVotes(data) })
   }, [id, game?.phase, game?.fleur_index])
 
-  // ROLE → FLEUR_EN_COURS automatique quand tous ont confirmé
+  // ── Computed ──────────────────────────────────────────────────────────────
   const joueurs       = players.filter(p => p.role !== 'grand_arbre')
   const joueurActifs  = joueurs.filter(j => !j.elimine)
   const tousConnectes = !!game && joueurs.length === game.nb_joueurs
   const nbConfirmes   = joueurs.filter(p => p.mission_accomplie).length
   const tousConfirmes = !!game && joueurs.length === game.nb_joueurs && nbConfirmes === joueurs.length
-  const nbMissionsSignalees = joueurs.filter(j => j.mission_resultat !== null && j.mission_resultat !== undefined).length
-  const nbMissionsReussies  = joueurs.filter(j => j.mission_resultat === 'reussi').length
+  // Exclure les éliminés des compteurs attendus
+  const nbMissionsSignalees = joueurActifs.filter(j => j.mission_resultat != null).length
+  const nbMissionsReussies  = joueurActifs.filter(j => j.mission_resultat === 'reussi').length
 
+  const fleurIndex  = game?.fleur_index ?? 0
+  const fleur       = FLEURS[fleurIndex]
+  const fleurConfig = game ? FLEUR_CONFIGS[fleurIndex]?.[game.nb_joueurs] : undefined
+  const requis      = fleurConfig?.t1
+  const votesFleur  = votes.filter(v => v.fleur_index === fleurIndex)
+
+  // ROLE → FLEUR_EN_COURS automatique quand tous ont confirmé
   useEffect(() => {
     if (game?.phase !== 'ROLE') { transitionFLancee.current = false; return }
     if (tousConfirmes && !transitionFLancee.current) {
@@ -91,14 +101,6 @@ export default function TablePage() {
         .then(({ error }) => { if (error) { console.error(error); transitionFLancee.current = false } })
     }
   }, [game?.phase, tousConfirmes, id])
-
-  // ── Computed ──────────────────────────────────────────────────────────────
-  const fleurIndex  = game?.fleur_index ?? 0
-  const fleur       = FLEURS[fleurIndex]
-  const fleurConfig = game ? FLEUR_CONFIGS[fleurIndex]?.[game.nb_joueurs] : undefined
-  const requis      = fleurConfig?.t1
-
-  const votesFleur = votes.filter(v => v.fleur_index === fleurIndex)
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
@@ -129,16 +131,34 @@ export default function TablePage() {
   }
 
   async function signalerResultat(resultat: 'eclose' | 'fanee') {
+    const nouvEcloses = (game?.fleurs_ecloses ?? 0) + (resultat === 'eclose' ? 1 : 0)
+    const nouvFanees  = (game?.fleurs_fanees  ?? 0) + (resultat === 'fanee'  ? 1 : 0)
+
+    // Vérifier les conditions de victoire avant de passer à CONSEQUENCES
+    let vainqueur: 'jardiniers' | 'ronces' | null = null
+    if (nouvFanees >= 3) vainqueur = 'ronces'
+    else if (nouvEcloses >= 5) vainqueur = 'jardiniers'
+
+    if (vainqueur) {
+      await supabase.from('games').update({
+        phase: 'FIN',
+        vainqueur,
+        resultat_fleur: resultat,
+        fleurs_ecloses: nouvEcloses,
+        fleurs_fanees: nouvFanees,
+      }).eq('id', id)
+      return
+    }
+
     await supabase.from('games').update({
       phase: 'CONSEQUENCES',
       resultat_fleur: resultat,
-      fleurs_ecloses: (game?.fleurs_ecloses ?? 0) + (resultat === 'eclose' ? 1 : 0),
-      fleurs_fanees:  (game?.fleurs_fanees  ?? 0) + (resultat === 'fanee'  ? 1 : 0),
+      fleurs_ecloses: nouvEcloses,
+      fleurs_fanees: nouvFanees,
     }).eq('id', id)
   }
 
   async function avancerVersFleur(nextIndex: number) {
-    // Réinitialise mission_resultat pour tous les joueurs
     await Promise.all(joueurs.map(j =>
       supabase.from('players').update({ mission_resultat: null }).eq('id', j.id)
     ))
@@ -146,15 +166,20 @@ export default function TablePage() {
     setJoueurRevele(null)
 
     if (nextIndex >= 5) {
-      await supabase.from('games').update({ phase: 'FIN' }).eq('id', id)
-    } else {
-      await supabase.from('games').update({
-        phase: 'FLEUR_EN_COURS',
-        fleur_index: nextIndex,
-        resultat_fleur: null,
-        vote_lance: false,
-      }).eq('id', id)
+      // Fin naturelle (5 fleurs jouées) : déterminer le vainqueur au score
+      const vainqueur = (game?.fleurs_ecloses ?? 0) >= 5 ? 'jardiniers'
+        : (game?.fleurs_fanees ?? 0) >= 3 ? 'ronces'
+        : null
+      await supabase.from('games').update({ phase: 'FIN', vainqueur }).eq('id', id)
+      return
     }
+
+    await supabase.from('games').update({
+      phase: 'FLEUR_EN_COURS',
+      fleur_index: nextIndex,
+      resultat_fleur: null,
+      vote_lance: false,
+    }).eq('id', id)
   }
 
   async function continuerApresCons() {
@@ -170,10 +195,7 @@ export default function TablePage() {
   }
 
   function voirResultatVote() {
-    if (votesFleur.length === 0) {
-      setResultatVote({ egalite: true })
-      return
-    }
+    if (votesFleur.length === 0) { setResultatVote({ egalite: true }); return }
     const comptage: Record<string, number> = {}
     votesFleur.forEach(v => { comptage[v.suspect_id] = (comptage[v.suspect_id] || 0) + 1 })
     const max = Math.max(...Object.values(comptage))
@@ -189,6 +211,14 @@ export default function TablePage() {
   async function revelerRole(joueur: any) {
     if (joueur.role === 'ronce') {
       await supabase.from('players').update({ elimine: true }).eq('id', joueur.id)
+
+      // Vérifier si toutes les Ronces sont démasquées → victoire Jardiniers
+      const totalRonces = getNbRonces(game?.nb_joueurs ?? 4)
+      const roncesDejaEliminees = joueurs.filter(j => j.role === 'ronce' && j.elimine).length
+      if (roncesDejaEliminees + 1 >= totalRonces) {
+        await supabase.from('games').update({ phase: 'FIN', vainqueur: 'jardiniers' }).eq('id', id)
+        return
+      }
     }
     setJoueurRevele({ joueur, role: joueur.role })
   }
@@ -198,7 +228,7 @@ export default function TablePage() {
   if (loading) {
     return (
       <main className="min-h-screen bg-bloom-cream-light flex items-center justify-center px-5">
-        <p className="font-title text-2xl text-bloom-violet-dark">Chargement...</p>
+        <p className="font-title text-2xl text-bloom-violet-dark">{t('chargement', lang)}</p>
       </main>
     )
   }
@@ -208,7 +238,9 @@ export default function TablePage() {
       <button onClick={() => router.push('/')} className="fixed top-4 left-4 text-bloom-violet-dark text-base font-semibold bg-transparent">
         ← Accueil
       </button>
+      <LangSwitcher className="fixed bottom-4 left-4 z-50" />
 
+      {/* Badge score — visible hors LOBBY */}
       {game?.phase !== 'LOBBY' && (
         <div className="fixed top-3 right-3 flex gap-1.5 z-50">
           <div className="flex items-center gap-1 bg-bloom-gray-dark rounded-xl px-2.5 py-1.5">
@@ -228,12 +260,12 @@ export default function TablePage() {
       {game?.phase === 'LOBBY' && (
         <>
           <div className="w-[90%] max-w-lg mx-auto bg-white rounded-2xl p-6 text-center shadow-md">
-            <p className="text-bloom-violet-medium text-base">Code de la partie</p>
+            <p className="text-bloom-violet-medium text-base">{t('code_partie', lang)}</p>
             <p className="font-title tracking-widest text-bloom-violet-dark text-5xl mt-1">{game?.code}</p>
-            <p className="text-bloom-violet-medium text-base mt-2">Les joueurs rejoignent sur leur téléphone</p>
+            <p className="text-bloom-violet-medium text-base mt-2">{t('joueurs_rejoignent', lang)}</p>
           </div>
           <div className="w-[90%] max-w-lg mx-auto bg-white rounded-2xl p-6 shadow-md">
-            <h2 className="font-title text-xl mb-4 text-bloom-violet-dark">Joueurs connectés ({joueurs.length}/{game?.nb_joueurs})</h2>
+            <h2 className="font-title text-xl mb-4 text-bloom-violet-dark">{t('joueurs_connectes', lang)} ({joueurs.length}/{game?.nb_joueurs})</h2>
             <div className="flex flex-col gap-2">
               {joueurs.map(p => (
                 <div key={p.id} className="bg-bloom-violet-pale rounded-xl px-4 py-3 text-base text-bloom-gray-dark">🌿 {p.pseudo}</div>
@@ -242,7 +274,7 @@ export default function TablePage() {
           </div>
           {tousConnectes && (
             <button onClick={lancerPartie} disabled={lancement} className="w-[90%] max-w-lg mx-auto min-h-[52px] bg-bloom-violet-dark text-white rounded-2xl px-6 text-xl font-bold shadow-md disabled:opacity-50">
-              Lancer la partie 🌱
+              {t('lancer_partie', lang)}
             </button>
           )}
         </>
@@ -251,8 +283,8 @@ export default function TablePage() {
       {/* ── ROLE ── */}
       {game?.phase === 'ROLE' && (
         <div className="w-[90%] max-w-lg mx-auto bg-white rounded-2xl p-6 shadow-md text-center">
-          <p className="font-title text-2xl text-bloom-violet-dark mb-4">Distribution des rôles... 🌸</p>
-          <p className="text-lg text-bloom-violet-medium">{nbConfirmes} / {game?.nb_joueurs} ont confirmé</p>
+          <p className="font-title text-2xl text-bloom-violet-dark mb-4">{t('distribution_roles', lang)}</p>
+          <p className="text-lg text-bloom-violet-medium">{nbConfirmes} / {game?.nb_joueurs} {t('ont_confirme', lang)}</p>
           <div className="flex flex-col gap-2 mt-6">
             {joueurs.map(p => (
               <div key={p.id} className="bg-bloom-violet-pale rounded-xl px-4 py-3 text-base flex justify-between text-bloom-gray-dark">
@@ -267,17 +299,15 @@ export default function TablePage() {
       {/* ── FLEUR EN COURS ── */}
       {game?.phase === 'FLEUR_EN_COURS' && fleur && (
         <div className="w-[90%] max-w-lg mx-auto flex flex-col gap-4">
-          {/* Fleur active */}
           <div className="bg-white rounded-2xl p-6 text-center shadow-md">
             <p className="text-7xl">{fleur.emoji}</p>
             <h2 className="font-title text-2xl text-bloom-violet-dark mt-2">{fleur.nom}</h2>
-            <p className="text-bloom-violet-medium text-sm mt-1">Fleur {fleurIndex + 1} / 5</p>
+            <p className="text-bloom-violet-medium text-sm mt-1">{t('fleur_label', lang)} {fleurIndex + 1} {t('sur_cinq', lang)}</p>
           </div>
 
-          {/* Ressources requises */}
           {requis && (
             <div className="bg-white rounded-2xl p-5 shadow-md">
-              <h3 className="font-title text-base text-bloom-violet-dark mb-3">Ressources requises</h3>
+              <h3 className="font-title text-base text-bloom-violet-dark mb-3">{t('ressources_requises', lang)}</h3>
               <div className="flex flex-wrap gap-2">
                 {(Object.entries(requis) as [string, number][])
                   .filter(([, n]) => n > 0)
@@ -295,33 +325,23 @@ export default function TablePage() {
                   })}
               </div>
               {fleurConfig && (
-                <p className="text-bloom-rose text-sm mt-3">
-                  ⚠️ Max {fleurConfig.qn} effet(s) négatif(s) toléré(s)
-                </p>
+                <p className="text-bloom-rose text-sm mt-3">⚠️ {t('max_effets', lang)} {fleurConfig.qn} {t('effets_neg_toleres', lang)}</p>
               )}
             </div>
           )}
 
-          {/* Missions signalées */}
           <div className="bg-white rounded-2xl p-4 shadow-md text-center">
-            <p className="text-bloom-violet-medium text-sm">Missions signalées</p>
+            <p className="text-bloom-violet-medium text-sm">{t('missions_signalees', lang)}</p>
             <p className="font-title text-3xl text-bloom-violet-dark mt-1">
-              {nbMissionsSignalees} / {joueurs.length}
+              {nbMissionsSignalees} / {joueurActifs.length}
             </p>
           </div>
 
-          {/* Boutons résultat — gros, bien espacés */}
-          <button
-            onClick={() => signalerResultat('eclose')}
-            className="w-full min-h-[72px] bg-bloom-green text-white rounded-2xl px-6 text-xl font-bold shadow-md"
-          >
-            🌸 Fleur éclose
+          <button onClick={() => signalerResultat('eclose')} className="w-full min-h-[72px] bg-bloom-green text-white rounded-2xl px-6 text-xl font-bold shadow-md">
+            {t('bouton_eclose', lang)}
           </button>
-          <button
-            onClick={() => signalerResultat('fanee')}
-            className="w-full min-h-[72px] bg-bloom-rose text-white rounded-2xl px-6 text-xl font-bold shadow-md"
-          >
-            🥀 Fleur fanée
+          <button onClick={() => signalerResultat('fanee')} className="w-full min-h-[72px] bg-bloom-rose text-white rounded-2xl px-6 text-xl font-bold shadow-md">
+            {t('bouton_fanee', lang)}
           </button>
         </div>
       )}
@@ -329,34 +349,26 @@ export default function TablePage() {
       {/* ── CONSÉQUENCES ── */}
       {game?.phase === 'CONSEQUENCES' && (
         <div className="w-[90%] max-w-lg mx-auto flex flex-col gap-4">
-          {/* Résultat fleur */}
           <div className={`rounded-2xl p-8 text-center shadow-md ${game.resultat_fleur === 'eclose' ? 'bg-bloom-green-light' : 'bg-bloom-rose-light'}`}>
             <p className="text-7xl">{game.resultat_fleur === 'eclose' ? '🌸' : '🥀'}</p>
             <p className="font-title text-3xl text-bloom-black mt-3">
-              {game.resultat_fleur === 'eclose' ? 'Fleur éclose !' : 'Fleur fanée...'}
+              {game.resultat_fleur === 'eclose' ? t('fleur_eclose_titre', lang) : t('fleur_fanee_titre', lang)}
             </p>
           </div>
 
-          {/* Bilan missions */}
           <div className="bg-white rounded-2xl p-5 shadow-md text-center">
             <p className="font-title text-4xl text-bloom-violet-dark">{nbMissionsReussies}</p>
             <p className="text-bloom-violet-medium mt-1">
-              mission{nbMissionsReussies > 1 ? 's' : ''} accomplie{nbMissionsReussies > 1 ? 's' : ''} sur {joueurs.length}
+              {t('mission_s', lang)} {t('accomplie_s', lang)} {t('sur', lang)} {joueurActifs.length}
             </p>
           </div>
 
-          {/* Note modificateurs */}
           <div className="bg-bloom-violet-pale rounded-2xl p-4 text-center">
-            <p className="text-sm text-bloom-violet-dark">
-              ✨ Les modificateurs s'appliquent à la fleur suivante
-            </p>
+            <p className="text-sm text-bloom-violet-dark">✨ {t('modificateurs', lang)}</p>
           </div>
 
-          <button
-            onClick={continuerApresCons}
-            className="w-full min-h-[52px] bg-bloom-violet-dark text-white rounded-2xl px-6 text-base font-bold shadow-md"
-          >
-            {fleurIndex === 0 ? 'Continuer →' : 'Continuer (vote) →'}
+          <button onClick={continuerApresCons} className="w-full min-h-[52px] bg-bloom-violet-dark text-white rounded-2xl px-6 text-base font-bold shadow-md">
+            {fleurIndex === 0 ? t('continuer', lang) : t('continuer_vote', lang)}
           </button>
         </div>
       )}
@@ -366,17 +378,17 @@ export default function TablePage() {
         <div className="w-[90%] max-w-lg mx-auto flex flex-col gap-4">
           <div className="bg-white rounded-2xl p-5 text-center shadow-md">
             <p className="text-4xl">🗳️</p>
-            <h2 className="font-title text-xl text-bloom-violet-dark mt-2">Phase de vote</h2>
-            <p className="text-bloom-violet-medium text-sm mt-1">Le groupe désigne un suspect Ronce</p>
+            <h2 className="font-title text-xl text-bloom-violet-dark mt-2">{t('phase_vote', lang)}</h2>
+            <p className="text-bloom-violet-medium text-sm mt-1">{t('groupe_designe', lang)}</p>
           </div>
 
           {!game?.vote_lance && !resultatVote && !joueurRevele && (
             <>
               <button onClick={lancerVote} className="w-full min-h-[64px] bg-bloom-violet-dark text-white rounded-2xl px-6 text-lg font-bold shadow-md">
-                Lancer le vote 🗳️
+                {t('lancer_vote_btn', lang)}
               </button>
               <button onClick={() => avancerVersFleur(fleurIndex + 1)} className="w-full min-h-[52px] bg-white text-bloom-violet-dark border-2 border-bloom-violet-light rounded-2xl px-6 text-base font-bold shadow-md">
-                Passer sans voter →
+                {t('passer_sans_voter', lang)}
               </button>
             </>
           )}
@@ -385,13 +397,10 @@ export default function TablePage() {
             <>
               <div className="bg-white rounded-2xl p-5 text-center shadow-md">
                 <p className="font-title text-4xl text-bloom-violet-dark">{votesFleur.length} / {joueurActifs.length}</p>
-                <p className="text-bloom-violet-medium mt-1">joueurs ont voté</p>
+                <p className="text-bloom-violet-medium mt-1">{t('joueurs_ont_vote', lang)}</p>
               </div>
-              <button
-                onClick={voirResultatVote}
-                className="w-full min-h-[52px] bg-bloom-gold text-bloom-black rounded-2xl px-6 text-base font-bold shadow-md"
-              >
-                Voir les résultats →
+              <button onClick={voirResultatVote} className="w-full min-h-[52px] bg-bloom-gold text-bloom-black rounded-2xl px-6 text-base font-bold shadow-md">
+                {t('voir_resultats', lang)}
               </button>
             </>
           )}
@@ -401,33 +410,25 @@ export default function TablePage() {
               {resultatVote.egalite || !resultatVote.vainqueur ? (
                 <div className="bg-white rounded-2xl p-6 text-center shadow-md">
                   <p className="text-4xl">🤷</p>
-                  <p className="font-title text-xl text-bloom-violet-dark mt-2">Égalité ou aucun vote</p>
-                  <p className="text-sm text-bloom-violet-medium mt-1">Personne n'est désigné</p>
+                  <p className="font-title text-xl text-bloom-violet-dark mt-2">{t('egalite_vote', lang)}</p>
+                  <p className="text-sm text-bloom-violet-medium mt-1">{t('personne_designe', lang)}</p>
                 </div>
               ) : (
                 <div className="bg-white rounded-2xl p-6 text-center shadow-md">
                   <p className="text-4xl">🎯</p>
-                  <p className="font-title text-xl text-bloom-violet-dark mt-2">
-                    {resultatVote.vainqueur.pseudo} est désigné
-                  </p>
-                  <p className="text-sm text-bloom-violet-medium mt-1">{resultatVote.nbVotes} vote(s)</p>
+                  <p className="font-title text-xl text-bloom-violet-dark mt-2">{resultatVote.vainqueur.pseudo} {t('est_designe', lang)}</p>
+                  <p className="text-sm text-bloom-violet-medium mt-1">{resultatVote.nbVotes} {t('vote_s', lang)}</p>
                 </div>
               )}
 
               {!resultatVote.egalite && resultatVote.vainqueur && (
-                <button
-                  onClick={() => revelerRole(resultatVote.vainqueur)}
-                  className="w-full min-h-[64px] bg-bloom-rose text-white rounded-2xl px-6 text-lg font-bold shadow-md"
-                >
-                  Révéler le rôle de {resultatVote.vainqueur.pseudo}
+                <button onClick={() => revelerRole(resultatVote.vainqueur)} className="w-full min-h-[64px] bg-bloom-rose text-white rounded-2xl px-6 text-lg font-bold shadow-md">
+                  {t('reveler_role_de', lang)} {resultatVote.vainqueur.pseudo}
                 </button>
               )}
 
-              <button
-                onClick={() => avancerVersFleur(fleurIndex + 1)}
-                className="w-full min-h-[52px] bg-white text-bloom-violet-dark border-2 border-bloom-violet-light rounded-2xl px-6 text-base font-bold shadow-md"
-              >
-                {resultatVote.egalite ? 'Continuer →' : 'Passer sans révéler →'}
+              <button onClick={() => avancerVersFleur(fleurIndex + 1)} className="w-full min-h-[52px] bg-white text-bloom-violet-dark border-2 border-bloom-violet-light rounded-2xl px-6 text-base font-bold shadow-md">
+                {resultatVote.egalite ? t('continuer_simple', lang) : t('passer_sans_reveler', lang)}
               </button>
             </>
           )}
@@ -437,20 +438,17 @@ export default function TablePage() {
               <div className={`rounded-2xl p-8 text-center shadow-md ${joueurRevele.role === 'ronce' ? 'bg-bloom-rose-light' : 'bg-bloom-green-light'}`}>
                 <p className="text-6xl">{joueurRevele.role === 'ronce' ? '🥀' : '🌸'}</p>
                 <p className="font-title text-2xl text-bloom-black mt-3">
-                  {joueurRevele.joueur.pseudo} était {joueurRevele.role === 'ronce' ? 'une Ronce !' : 'un Jardinier...'}
+                  {joueurRevele.joueur.pseudo} {joueurRevele.role === 'ronce' ? t('etait_ronce_txt', lang) : t('etait_jardinier_txt', lang)}
                 </p>
                 {joueurRevele.role === 'ronce' && (
-                  <p className="text-sm text-bloom-gray-dark mt-2">Joueur éliminé pour les votes suivants</p>
+                  <p className="text-sm text-bloom-gray-dark mt-2">{t('joueur_elimine_votes', lang)}</p>
                 )}
                 {joueurRevele.role === 'jardinier' && (
-                  <p className="text-sm text-bloom-gray-dark mt-2">Le jeu continue normalement.</p>
+                  <p className="text-sm text-bloom-gray-dark mt-2">{t('jeu_continue', lang)}</p>
                 )}
               </div>
-              <button
-                onClick={() => avancerVersFleur(fleurIndex + 1)}
-                className="w-full min-h-[52px] bg-bloom-violet-dark text-white rounded-2xl px-6 text-base font-bold shadow-md"
-              >
-                {fleurIndex >= 4 ? 'Voir le résultat final →' : 'Fleur suivante →'}
+              <button onClick={() => avancerVersFleur(fleurIndex + 1)} className="w-full min-h-[52px] bg-bloom-violet-dark text-white rounded-2xl px-6 text-base font-bold shadow-md">
+                {fleurIndex >= 4 ? t('voir_resultat_final', lang) : t('fleur_suivante', lang)}
               </button>
             </>
           )}
@@ -459,10 +457,58 @@ export default function TablePage() {
 
       {/* ── FIN ── */}
       {game?.phase === 'FIN' && (
-        <div className="w-[90%] max-w-lg mx-auto bg-white rounded-2xl p-8 text-center shadow-md">
-          <p className="text-6xl">🌺</p>
-          <h2 className="font-title text-3xl text-bloom-violet-dark mt-4">Partie terminée !</h2>
-          <p className="text-base text-bloom-violet-medium mt-3">Merci d&apos;avoir joué à BLOOM</p>
+        <div className="w-[90%] max-w-lg mx-auto flex flex-col gap-5 pb-8">
+          {/* Bannière victoire */}
+          <div className={`rounded-2xl p-8 text-center shadow-md ${game.vainqueur === 'jardiniers' ? 'bg-bloom-green-light' : 'bg-bloom-rose-light'}`}>
+            <p className="text-7xl">{game.vainqueur === 'jardiniers' ? '🌸' : '🥀'}</p>
+            <p className="font-title text-3xl text-bloom-black mt-3">
+              {game.vainqueur === 'jardiniers' ? t('victoire_jardiniers', lang) : t('victoire_ronces', lang)}
+            </p>
+            <p className="text-bloom-gray-dark text-sm mt-2">
+              {game.vainqueur === 'jardiniers' ? t('sous_titre_jardiniers', lang) : t('sous_titre_ronces', lang)}
+            </p>
+          </div>
+
+          {/* Score final */}
+          <div className="bg-white rounded-2xl p-5 flex justify-around shadow-md">
+            <div className="text-center">
+              <p className="text-4xl">🌸</p>
+              <p className="font-title text-3xl text-bloom-green mt-1">{game.fleurs_ecloses ?? 0}</p>
+              <p className="text-xs text-bloom-violet-medium mt-1">{t('fleurs_ecloses', lang)}</p>
+            </div>
+            <div className="w-px bg-bloom-violet-light" />
+            <div className="text-center">
+              <p className="text-4xl">🥀</p>
+              <p className="font-title text-3xl text-bloom-rose mt-1">{game.fleurs_fanees ?? 0}</p>
+              <p className="text-xs text-bloom-violet-medium mt-1">{t('fleurs_fanees', lang)}</p>
+            </div>
+          </div>
+
+          {/* Rôles révélés */}
+          <div className="bg-white rounded-2xl p-5 shadow-md">
+            <h3 className="font-title text-lg text-bloom-violet-dark mb-3">{t('fin_roles_reveles', lang)}</h3>
+            <div className="flex flex-col gap-2">
+              {joueurs.map(j => (
+                <div
+                  key={j.id}
+                  className={`rounded-xl px-4 py-3 flex items-center justify-between ${j.role === 'ronce' ? 'bg-bloom-rose-light' : 'bg-bloom-green-light'}`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{j.role === 'ronce' ? '🥀' : '🌸'}</span>
+                    <span className="text-base font-bold text-bloom-black">{j.pseudo}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-bloom-gray-dark">{j.role === 'ronce' ? t('role_ronce', lang) : t('role_jardinier', lang)}</span>
+                    {j.elimine && (
+                      <span className="text-xs bg-bloom-rose text-white px-2 py-0.5 rounded-full whitespace-nowrap">{t('badge_demasque', lang)}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <p className="text-center text-sm text-bloom-violet-medium">{t('fin_merci', lang)}</p>
         </div>
       )}
     </main>
