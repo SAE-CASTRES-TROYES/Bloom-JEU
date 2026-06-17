@@ -2,6 +2,9 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { LangSwitcher } from './lang-switcher'
+import { useLang } from './providers'
+import { t } from '@/lib/translations'
 
 function generateCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase()
@@ -11,6 +14,7 @@ type Etape = 'choix' | 'arbre' | 'joueur'
 
 export default function Home() {
   const router = useRouter()
+  const { lang } = useLang()
   const [etape, setEtape] = useState<Etape>('choix')
   const [pseudo, setPseudo] = useState('')
   const [code, setCode] = useState('')
@@ -58,7 +62,7 @@ export default function Home() {
       .eq('code', code.toUpperCase())
       .single()
 
-    if (!game) { alert('Partie introuvable !'); setLoading(false); return }
+    if (!game) { alert(t('partie_introuvable', lang)); setLoading(false); return }
 
     const { data: player } = await supabase
       .from('players')
@@ -80,9 +84,11 @@ export default function Home() {
           onClick={() => setEtape('choix')}
           className="fixed top-4 left-4 text-bloom-violet-dark text-base font-semibold bg-transparent"
         >
-          ← Retour
+          {t('retour', lang)}
         </button>
       )}
+
+      <LangSwitcher className="fixed top-4 right-4" />
 
       <img src="/logo-baseline.png" alt="BLOOM — Tout peut fleurir. Même le doute..." className="w-72" />
 
@@ -92,50 +98,50 @@ export default function Home() {
             onClick={() => window.open('/?role=arbre', '_blank')}
             className="min-h-[52px] bg-bloom-violet-dark text-white rounded-2xl px-6 text-base font-bold shadow-md"
           >
-            🌳 Cet appareil est le Grand Arbre
+            {t('btn_arbre', lang)}
           </button>
           <button
             onClick={() => window.open('/?role=joueur', '_blank')}
             className="min-h-[52px] bg-bloom-rose text-white rounded-2xl px-6 text-base font-bold shadow-md"
           >
-            🌿 Cet appareil est un joueur
+            {t('btn_joueur', lang)}
           </button>
         </div>
       )}
 
       {etape === 'arbre' && (
         <div className="w-[90%] max-w-sm bg-white rounded-2xl shadow-md p-6 flex flex-col gap-4">
-          <h2 className="font-title text-xl text-bloom-violet-dark text-center">Créer une partie</h2>
+          <h2 className="font-title text-xl text-bloom-violet-dark text-center">{t('creer_partie', lang)}</h2>
           <select
             className="min-h-[52px] border-2 border-bloom-violet-light rounded-xl px-4 text-base bg-white focus:outline-none focus:border-bloom-violet-dark"
             value={nbJoueurs}
             onChange={e => setNbJoueurs(Number(e.target.value))}
           >
-            {[4,5,6,7,8].map(n => <option key={n} value={n}>{n} joueurs</option>)}
+            {[4,5,6,7,8].map(n => <option key={n} value={n}>{n} {t('joueurs_opt', lang)}</option>)}
           </select>
           <button
             onClick={creerPartie}
             disabled={loading}
             className="min-h-[52px] bg-bloom-violet-dark text-white rounded-2xl px-6 text-base font-bold shadow-md disabled:opacity-50"
           >
-            {loading ? 'Création...' : 'Créer la partie 🌱'}
+            {loading ? t('creation_en_cours', lang) : t('creer_btn', lang)}
           </button>
         </div>
       )}
 
       {etape === 'joueur' && (
         <div className="w-[90%] max-w-sm bg-white rounded-2xl shadow-md p-6 flex flex-col gap-4">
-          <h2 className="font-title text-xl text-bloom-rose text-center">Rejoindre une partie</h2>
+          <h2 className="font-title text-xl text-bloom-rose text-center">{t('rejoindre_titre', lang)}</h2>
           <input
             className="min-h-[52px] border-2 border-bloom-violet-light rounded-xl px-4 text-base bg-white focus:outline-none focus:border-bloom-violet-dark uppercase tracking-widest"
-            placeholder="Code de partie"
+            placeholder={t('placeholder_code', lang)}
             value={code}
             onChange={e => setCode(e.target.value.toUpperCase())}
             maxLength={6}
           />
           <input
             className="min-h-[52px] border-2 border-bloom-violet-light rounded-xl px-4 text-base bg-white focus:outline-none focus:border-bloom-violet-dark"
-            placeholder="Ton pseudo"
+            placeholder={t('placeholder_pseudo', lang)}
             value={pseudo}
             onChange={e => setPseudo(e.target.value)}
           />
@@ -144,7 +150,7 @@ export default function Home() {
             disabled={loading || !pseudo || !code}
             className="min-h-[52px] bg-bloom-rose text-white rounded-2xl px-6 text-base font-bold shadow-md disabled:opacity-50"
           >
-            {loading ? 'Connexion...' : 'Rejoindre la partie →'}
+            {loading ? t('connexion_en_cours', lang) : t('rejoindre_btn', lang)}
           </button>
         </div>
       )}
