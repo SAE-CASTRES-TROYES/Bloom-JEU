@@ -1,0 +1,345 @@
+export type Lang = 'fr' | 'en' | 'es'
+
+const translations = {
+  fr: {
+    // ── Général
+    chargement:           'Chargement...',
+    joueur_introuvable:   'Joueur introuvable.',
+    rejoindre_accueil:    "Rejoins la partie depuis la page d'accueil.",
+
+    // ── Page d'accueil
+    retour:               '← Retour',
+    btn_arbre:            '🌳 Cet appareil est le Grand Arbre',
+    btn_joueur:           '🌿 Cet appareil est un joueur',
+    creer_partie:         'Créer une partie',
+    creation_en_cours:    'Création...',
+    creer_btn:            'Créer la partie 🌱',
+    rejoindre_titre:      'Rejoindre une partie',
+    placeholder_code:     'Code de partie',
+    placeholder_pseudo:   'Ton pseudo',
+    connexion_en_cours:   'Connexion...',
+    rejoindre_btn:        'Rejoindre la partie →',
+    joueurs_opt:          'joueurs',
+    partie_introuvable:   'Partie introuvable !',
+
+    // ── Lobby (joueur)
+    en_attente_ga:        'En attente du Grand Arbre...',
+
+    partie_bientot:       'La partie va bientôt commencer',
+
+    // ── Rôle (joueur)
+    role_ronce_desc:      'Sabote discrètement la floraison sans te faire repérer !',
+    role_jardinier_desc:  'Coopère pour faire éclore les 5 fleurs légendaires !',
+    mission_secrete:      'Ta mission secrète 🎯',
+    confirmer_role_btn:   "J'ai pris connaissance de mon rôle",
+    compris:              '✓ Compris !',
+
+    // ── Fleur en cours (joueur)
+    ta_mission:           'Ta mission 🎯',
+    mission_reussie_btn:  "✅ J'ai réussi ma mission",
+    mission_echec_btn:    "❌ J'ai échoué ma mission",
+    reponse_enregistree:  'Réponse enregistrée',
+    en_attente_resultat:  'En attente du Grand Arbre...',
+
+    // ── Conséquences (joueur)
+    ga_prepare:           'Le Grand Arbre prépare la suite...',
+
+    // ── Vote (joueur)
+    phase_vote:           'Phase de vote',
+    designe_suspect:      'Désigne un suspect Ronce',
+    ga_lance_vote:        'Le Grand Arbre va lancer le vote...',
+    tap_suspect:          'Tape sur le joueur que tu suspectes',
+    vote_enregistre:      'Vote enregistré !',
+    en_attente_autres:    'En attente des autres joueurs...',
+
+    // ── Fin (joueur)
+    tu_etais:             'Tu étais',
+    partie_terminee:      'Partie terminée !',
+    regarder_ga:          'Regardez le Grand Arbre pour le résultat final',
+
+    // ── Lobby (Grand Arbre)
+    code_partie:          'Code de la partie',
+    joueurs_rejoignent:   'Les joueurs rejoignent sur leur téléphone',
+    joueurs_connectes:    'Joueurs connectés',
+    lancer_partie:        'Lancer la partie 🌱',
+
+    // ── Rôle (Grand Arbre)
+    distribution_roles:   'Distribution des rôles... 🌸',
+    ont_confirme:         'ont confirmé',
+
+    // ── Fleur en cours (Grand Arbre)
+    fleur_label:          'Fleur',
+    sur_cinq:             '/ 5',
+    ressources_requises:  'Ressources requises',
+    max_effets:           'Max',
+    effets_neg_toleres:   'effet(s) négatif(s) toléré(s)',
+    missions_signalees:   'Missions signalées',
+    bouton_eclose:        '🌸 Fleur éclose',
+    bouton_fanee:         '🥀 Fleur fanée',
+
+    // ── Conséquences (Grand Arbre)
+    fleur_eclose_titre:   'Fleur éclose !',
+    fleur_fanee_titre:    'Fleur fanée...',
+    mission_s:            'mission(s)',
+    accomplie_s:          'accomplie(s)',
+    sur:                  'sur',
+    modificateurs:        "Les modificateurs s'appliquent à la fleur suivante",
+    continuer:            'Continuer →',
+    continuer_vote:       'Continuer (vote) →',
+
+    // ── Vote (Grand Arbre)
+    groupe_designe:       'Le groupe désigne un suspect Ronce',
+    lancer_vote_btn:      'Lancer le vote 🗳️',
+    passer_sans_voter:    'Passer sans voter →',
+    joueurs_ont_vote:     'joueurs ont voté',
+    voir_resultats:       'Voir les résultats →',
+    egalite_vote:         'Égalité ou aucun vote',
+    personne_designe:     "Personne n'est désigné",
+    est_designe:          'est désigné',
+    vote_s:               'vote(s)',
+    reveler_role_de:      'Révéler le rôle de',
+    passer_sans_reveler:  'Passer sans révéler →',
+    continuer_simple:     'Continuer →',
+    etait_ronce_txt:      'était une Ronce !',
+    etait_jardinier_txt:  'était un Jardinier...',
+    joueur_elimine_votes: 'Joueur éliminé pour les votes suivants',
+    jeu_continue:         'Le jeu continue normalement.',
+    fleur_suivante:       'Fleur suivante →',
+    voir_resultat_final:  'Voir le résultat final →',
+
+    // ── Victoire / FIN
+    victoire_jardiniers:  'Les Jardiniers ont gagné !',
+    victoire_ronces:      'Les Ronces ont gagné !',
+    sous_titre_jardiniers:'Le jardin a fleuri malgré les Ronces !',
+    sous_titre_ronces:    'Les Ronces ont étouffé le jardin...',
+    fleurs_ecloses:       'fleur(s) éclose(s)',
+    fleurs_fanees:        'fleur(s) fanée(s)',
+    role_jardinier:       'Jardinier',
+    role_ronce:           'Ronce',
+    badge_demasque:       'démasqué·e',
+    elimine_vote:         "Tu as été démasqué·e — tu peux suivre la partie mais tu ne peux plus voter.",
+    elimine_mission:      "Tu as été démasqué·e — tu ne participes plus aux missions.",
+    fin_roles_reveles:    'Rôles révélés',
+    fin_merci:            "Merci d'avoir joué à BLOOM !",
+  },
+
+  en: {
+    retour:               '← Back',
+    btn_arbre:            '🌳 This device is the Grand Tree',
+    btn_joueur:           '🌿 This device is a player',
+    creer_partie:         'Create a game',
+    creation_en_cours:    'Creating...',
+    creer_btn:            'Create the game 🌱',
+    rejoindre_titre:      'Join a game',
+    placeholder_code:     'Game code',
+    placeholder_pseudo:   'Your nickname',
+    connexion_en_cours:   'Connecting...',
+    rejoindre_btn:        'Join the game →',
+    joueurs_opt:          'players',
+    partie_introuvable:   'Game not found!',
+
+    chargement:           'Loading...',
+    joueur_introuvable:   'Player not found.',
+    rejoindre_accueil:    'Join the game from the home page.',
+
+    en_attente_ga:        'Waiting for the Grand Tree...',
+    partie_bientot:       'The game will start soon',
+
+    role_ronce_desc:      'Secretly sabotage the blooming without getting caught!',
+    role_jardinier_desc:  'Cooperate to make the 5 legendary flowers bloom!',
+    mission_secrete:      'Your secret mission 🎯',
+    confirmer_role_btn:   'I have read my role',
+    compris:              '✓ Got it!',
+
+    ta_mission:           'Your mission 🎯',
+    mission_reussie_btn:  '✅ I completed my mission',
+    mission_echec_btn:    '❌ I failed my mission',
+    reponse_enregistree:  'Answer recorded',
+    en_attente_resultat:  'Waiting for the Grand Tree...',
+
+    ga_prepare:           'The Grand Tree is preparing next steps...',
+
+    phase_vote:           'Voting phase',
+    designe_suspect:      'Designate a Thorn suspect',
+    ga_lance_vote:        'The Grand Tree will start the vote...',
+    tap_suspect:          'Tap the player you suspect',
+    vote_enregistre:      'Vote recorded!',
+    en_attente_autres:    'Waiting for other players...',
+
+    tu_etais:             'You were a',
+    partie_terminee:      'Game over!',
+    regarder_ga:          'Watch the Grand Tree for the final result',
+
+    code_partie:          'Game code',
+    joueurs_rejoignent:   'Players join on their phone',
+    joueurs_connectes:    'Connected players',
+    lancer_partie:        'Start the game 🌱',
+
+    distribution_roles:   'Distributing roles... 🌸',
+    ont_confirme:         'confirmed',
+
+    fleur_label:          'Flower',
+    sur_cinq:             '/ 5',
+    ressources_requises:  'Required resources',
+    max_effets:           'Max',
+    effets_neg_toleres:   'negative effect(s) tolerated',
+    missions_signalees:   'Reported missions',
+    bouton_eclose:        '🌸 Flower bloomed',
+    bouton_fanee:         '🥀 Flower withered',
+
+    fleur_eclose_titre:   'Flower bloomed!',
+    fleur_fanee_titre:    'Flower withered...',
+    mission_s:            'mission(s)',
+    accomplie_s:          'accomplished',
+    sur:                  'out of',
+    modificateurs:        'Modifiers apply to the next flower',
+    continuer:            'Continue →',
+    continuer_vote:       'Continue (vote) →',
+
+    groupe_designe:       'The group designates a Thorn suspect',
+    lancer_vote_btn:      'Start the vote 🗳️',
+    passer_sans_voter:    'Skip vote →',
+    joueurs_ont_vote:     'players voted',
+    voir_resultats:       'See results →',
+    egalite_vote:         'Tie or no votes',
+    personne_designe:     'No one is designated',
+    est_designe:          'is designated',
+    vote_s:               'vote(s)',
+    reveler_role_de:      'Reveal the role of',
+    passer_sans_reveler:  'Skip without revealing →',
+    continuer_simple:     'Continue →',
+    etait_ronce_txt:      'was a Thorn!',
+    etait_jardinier_txt:  'was a Gardener...',
+    joueur_elimine_votes: 'Player eliminated from future votes',
+    jeu_continue:         'The game continues normally.',
+    fleur_suivante:       'Next flower →',
+    voir_resultat_final:  'See final result →',
+
+    victoire_jardiniers:  'The Gardeners win!',
+    victoire_ronces:      'The Thorns win!',
+    sous_titre_jardiniers:'The garden bloomed despite the Thorns!',
+    sous_titre_ronces:    'The Thorns have smothered the garden...',
+    fleurs_ecloses:       'flower(s) bloomed',
+    fleurs_fanees:        'flower(s) withered',
+    role_jardinier:       'Gardener',
+    role_ronce:           'Thorn',
+    badge_demasque:       'unmasked',
+    elimine_vote:         "You've been unmasked — you can follow the game but can no longer vote.",
+    elimine_mission:      "You've been unmasked — you no longer participate in missions.",
+    fin_roles_reveles:    'Roles revealed',
+    fin_merci:            'Thank you for playing BLOOM!',
+  },
+
+  es: {
+    retour:               '← Volver',
+    btn_arbre:            '🌳 Este dispositivo es el Gran Árbol',
+    btn_joueur:           '🌿 Este dispositivo es un jugador',
+    creer_partie:         'Crear una partida',
+    creation_en_cours:    'Creando...',
+    creer_btn:            'Crear la partida 🌱',
+    rejoindre_titre:      'Unirse a una partida',
+    placeholder_code:     'Código de partida',
+    placeholder_pseudo:   'Tu apodo',
+    connexion_en_cours:   'Conectando...',
+    rejoindre_btn:        'Unirse a la partida →',
+    joueurs_opt:          'jugadores',
+    partie_introuvable:   '¡Partida no encontrada!',
+
+    chargement:           'Cargando...',
+    joueur_introuvable:   'Jugador no encontrado.',
+    rejoindre_accueil:    'Únete a la partida desde la página de inicio.',
+
+    en_attente_ga:        'Esperando al Gran Árbol...',
+    partie_bientot:       'La partida va a empezar pronto',
+
+    role_ronce_desc:      '¡Sabotea discretamente la floración sin que te pillen!',
+    role_jardinier_desc:  '¡Coopera para hacer florecer las 5 flores legendarias!',
+    mission_secrete:      'Tu misión secreta 🎯',
+    confirmer_role_btn:   'He leído mi rol',
+    compris:              '✓ ¡Entendido!',
+
+    ta_mission:           'Tu misión 🎯',
+    mission_reussie_btn:  '✅ Completé mi misión',
+    mission_echec_btn:    '❌ Fallé mi misión',
+    reponse_enregistree:  'Respuesta registrada',
+    en_attente_resultat:  'Esperando al Gran Árbol...',
+
+    ga_prepare:           'El Gran Árbol está preparando lo siguiente...',
+
+    phase_vote:           'Fase de votación',
+    designe_suspect:      'Designa un sospechoso Zarza',
+    ga_lance_vote:        'El Gran Árbol iniciará la votación...',
+    tap_suspect:          'Toca al jugador que sospechas',
+    vote_enregistre:      '¡Voto registrado!',
+    en_attente_autres:    'Esperando a los demás jugadores...',
+
+    tu_etais:             'Eras',
+    partie_terminee:      '¡Partida terminada!',
+    regarder_ga:          'Mira al Gran Árbol para el resultado final',
+
+    code_partie:          'Código de la partida',
+    joueurs_rejoignent:   'Los jugadores se unen en su teléfono',
+    joueurs_connectes:    'Jugadores conectados',
+    lancer_partie:        'Iniciar la partida 🌱',
+
+    distribution_roles:   'Distribución de roles... 🌸',
+    ont_confirme:         'confirmaron',
+
+    fleur_label:          'Flor',
+    sur_cinq:             '/ 5',
+    ressources_requises:  'Recursos requeridos',
+    max_effets:           'Máx.',
+    effets_neg_toleres:   'efecto(s) negativo(s) tolerado(s)',
+    missions_signalees:   'Misiones reportadas',
+    bouton_eclose:        '🌸 Flor florecida',
+    bouton_fanee:         '🥀 Flor marchita',
+
+    fleur_eclose_titre:   '¡Flor florecida!',
+    fleur_fanee_titre:    'Flor marchita...',
+    mission_s:            'misión/misiones',
+    accomplie_s:          'lograda(s)',
+    sur:                  'de',
+    modificateurs:        'Los modificadores se aplican a la siguiente flor',
+    continuer:            'Continuar →',
+    continuer_vote:       'Continuar (voto) →',
+
+    groupe_designe:       'El grupo designa un sospechoso Zarza',
+    lancer_vote_btn:      'Iniciar votación 🗳️',
+    passer_sans_voter:    'Omitir votación →',
+    joueurs_ont_vote:     'jugadores votaron',
+    voir_resultats:       'Ver resultados →',
+    egalite_vote:         'Empate o sin votos',
+    personne_designe:     'Nadie está designado',
+    est_designe:          'está designado',
+    vote_s:               'voto(s)',
+    reveler_role_de:      'Revelar el rol de',
+    passer_sans_reveler:  'Omitir sin revelar →',
+    continuer_simple:     'Continuar →',
+    etait_ronce_txt:      '¡era una Zarza!',
+    etait_jardinier_txt:  'era un Jardinero...',
+    joueur_elimine_votes: 'Jugador eliminado de futuras votaciones',
+    jeu_continue:         'El juego continúa normalmente.',
+    fleur_suivante:       'Siguiente flor →',
+    voir_resultat_final:  'Ver resultado final →',
+
+    victoire_jardiniers:  '¡Los Jardineros ganan!',
+    victoire_ronces:      '¡Las Zarzas ganan!',
+    sous_titre_jardiniers:'¡El jardín floreció a pesar de las Zarzas!',
+    sous_titre_ronces:    'Las Zarzas sofocaron el jardín...',
+    fleurs_ecloses:       'flor(es) florecida(s)',
+    fleurs_fanees:        'flor(es) marchita(s)',
+    role_jardinier:       'Jardinero',
+    role_ronce:           'Zarza',
+    badge_demasque:       'desenmascarado/a',
+    elimine_vote:         'Has sido desenmascarado/a — puedes seguir la partida pero ya no puedes votar.',
+    elimine_mission:      'Has sido desenmascarado/a — ya no participas en las misiones.',
+    fin_roles_reveles:    'Roles revelados',
+    fin_merci:            '¡Gracias por jugar a BLOOM!',
+  },
+}
+
+export type TKey = keyof typeof translations['fr']
+
+export function t(key: TKey, lang: Lang = 'fr'): string {
+  return (translations[lang] as Record<TKey, string>)?.[key] ?? translations['fr'][key]
+}

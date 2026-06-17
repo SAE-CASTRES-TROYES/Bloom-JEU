@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Alice, Karla, Dancing_Script } from "next/font/google";
 import "./globals.css";
+import { LangProvider } from "./providers";
 
 const alice = Alice({
   variable: "--font-alice",
@@ -33,7 +34,9 @@ export default function RootLayout({
       lang="fr"
       className={`${alice.variable} ${karla.variable} ${dancingScript.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-body bg-bloom-cream-light text-bloom-gray-dark">{children}</body>
+      <body className="min-h-full flex flex-col font-body bg-bloom-cream-light text-bloom-gray-dark">
+        <LangProvider>{children}</LangProvider>
+      </body>
     </html>
   );
 }
