@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
@@ -7,18 +7,25 @@ function generateCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase()
 }
 
+type Etape = 'choix' | 'arbre' | 'joueur'
+
 export default function Home() {
   const router = useRouter()
+  const [etape, setEtape] = useState<Etape>('choix')
   const [pseudo, setPseudo] = useState('')
   const [code, setCode] = useState('')
   const [nbJoueurs, setNbJoueurs] = useState(4)
   const [loading, setLoading] = useState(false)
 
-async function creerPartie() {
-    if (!pseudo) { alert('Entre un pseudo !'); return }
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const role = params.get('role')
+    if (role === 'arbre' || role === 'joueur') setEtape(role)
+  }, [])
+
+  async function creerPartie() {
     setLoading(true)
     const gameCode = generateCode()
-    console.log('1. Création partie avec code:', gameCode)
 
     const { data: game, error: gameError } = await supabase
       .from('games')
@@ -26,17 +33,15 @@ async function creerPartie() {
       .select()
       .single()
 
-    console.log('2. Game:', game, 'Erreur:', gameError)
-    if (!game) { console.log('Pas de game !'); setLoading(false); return }
+    if (!game) { console.error(gameError); setLoading(false); return }
 
     const { data: player, error: playerError } = await supabase
       .from('players')
-      .insert({ game_id: game.id, pseudo, role: 'grand_arbre' })
+      .insert({ game_id: game.id, pseudo: 'Grand Arbre', role: 'grand_arbre' })
       .select()
       .single()
 
-    console.log('3. Player:', player, 'Erreur:', playerError)
-    if (!player) { setLoading(false); return }
+    if (!player) { console.error(playerError); setLoading(false); return }
 
     localStorage.setItem('player_id', player.id)
     localStorage.setItem('game_id', game.id)
@@ -61,55 +66,88 @@ async function creerPartie() {
       .select()
       .single()
 
+    if (!player) { setLoading(false); return }
+
     localStorage.setItem('player_id', player.id)
     localStorage.setItem('game_id', game.id)
     router.push(`/game/${game.id}/player`)
   }
 
   return (
-    <main className="min-h-screen bg-bloom-cream flex flex-col items-center justify-center gap-8 p-8">
-      <img src="/logo.svg" alt="BLOOM" className="w-64" />
-
-      <input
-        className="border-2 border-bloom-violet-pale rounded-2xl p-3 text-lg w-64 bg-white shadow-md focus:outline-none focus:border-bloom-violet"
-        placeholder="Ton pseudo"
-        value={pseudo}
-        onChange={e => setPseudo(e.target.value)}
-      />
-
-      <div className="flex flex-col gap-4 w-64">
-        <select
-          className="border-2 border-bloom-violet-pale rounded-2xl p-3 text-lg bg-white shadow-md"
-          value={nbJoueurs}
-          onChange={e => setNbJoueurs(Number(e.target.value))}
-        >
-          {[4,5,6,7,8].map(n => <option key={n} value={n}>{n} joueurs</option>)}
-        </select>
-
+    <main className="min-h-screen bg-bloom-cream-light flex flex-col items-center px-5 py-12 gap-8">
+      {etape !== 'choix' && (
         <button
-          onClick={creerPartie}
-          disabled={loading}
-          className="bg-bloom-violet text-white rounded-2xl p-3 text-lg font-bold shadow-md hover:bg-bloom-violet/90 disabled:opacity-50"
+          onClick={() => setEtape('choix')}
+          className="fixed top-4 left-4 text-bloom-violet-dark text-base font-semibold bg-transparent"
         >
-          🌱 Créer une partie (Grand Arbre)
+          ← Retour
         </button>
+      )}
 
-        <div className="flex gap-2">
+      <img src="/logo-baseline.png" alt="BLOOM — Tout peut fleurir. Même le doute..." className="w-72" />
+
+      {etape === 'choix' && (
+        <div className="w-[90%] max-w-sm flex flex-col gap-4">
+          <button
+            onClick={() => window.open('/?role=arbre', '_blank')}
+            className="min-h-[52px] bg-bloom-violet-dark text-white rounded-2xl px-6 text-base font-bold shadow-md"
+          >
+            🌳 Cet appareil est le Grand Arbre
+          </button>
+          <button
+            onClick={() => window.open('/?role=joueur', '_blank')}
+            className="min-h-[52px] bg-bloom-rose text-white rounded-2xl px-6 text-base font-bold shadow-md"
+          >
+            🌿 Cet appareil est un joueur
+          </button>
+        </div>
+      )}
+
+      {etape === 'arbre' && (
+        <div className="w-[90%] max-w-sm bg-white rounded-2xl shadow-md p-6 flex flex-col gap-4">
+          <h2 className="font-title text-xl text-bloom-violet-dark text-center">Créer une partie</h2>
+          <select
+            className="min-h-[52px] border-2 border-bloom-violet-light rounded-xl px-4 text-base bg-white focus:outline-none focus:border-bloom-violet-dark"
+            value={nbJoueurs}
+            onChange={e => setNbJoueurs(Number(e.target.value))}
+          >
+            {[4,5,6,7,8].map(n => <option key={n} value={n}>{n} joueurs</option>)}
+          </select>
+          <button
+            onClick={creerPartie}
+            disabled={loading}
+            className="min-h-[52px] bg-bloom-violet-dark text-white rounded-2xl px-6 text-base font-bold shadow-md disabled:opacity-50"
+          >
+            {loading ? 'Création...' : 'Créer la partie 🌱'}
+          </button>
+        </div>
+      )}
+
+      {etape === 'joueur' && (
+        <div className="w-[90%] max-w-sm bg-white rounded-2xl shadow-md p-6 flex flex-col gap-4">
+          <h2 className="font-title text-xl text-bloom-rose text-center">Rejoindre une partie</h2>
           <input
-            className="border-2 border-bloom-violet-pale rounded-2xl p-3 text-lg flex-1 bg-white shadow-md focus:outline-none focus:border-bloom-violet"
-            placeholder="Code partie"
+            className="min-h-[52px] border-2 border-bloom-violet-light rounded-xl px-4 text-base bg-white focus:outline-none focus:border-bloom-violet-dark uppercase tracking-widest"
+            placeholder="Code de partie"
             value={code}
-            onChange={e => setCode(e.target.value)}
+            onChange={e => setCode(e.target.value.toUpperCase())}
+            maxLength={6}
+          />
+          <input
+            className="min-h-[52px] border-2 border-bloom-violet-light rounded-xl px-4 text-base bg-white focus:outline-none focus:border-bloom-violet-dark"
+            placeholder="Ton pseudo"
+            value={pseudo}
+            onChange={e => setPseudo(e.target.value)}
           />
           <button
             onClick={rejoindrePartie}
-            disabled={loading}
-            className="bg-bloom-fuchsia text-white rounded-2xl p-3 text-lg font-bold shadow-md hover:bg-bloom-fuchsia/90 disabled:opacity-50"
+            disabled={loading || !pseudo || !code}
+            className="min-h-[52px] bg-bloom-rose text-white rounded-2xl px-6 text-base font-bold shadow-md disabled:opacity-50"
           >
-            →
+            {loading ? 'Connexion...' : 'Rejoindre la partie →'}
           </button>
         </div>
-      </div>
+      )}
     </main>
   )
 }
