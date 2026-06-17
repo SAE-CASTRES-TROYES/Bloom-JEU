@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { LangSwitcher } from './lang-switcher'
 import { useLang } from './providers'
 import { t } from '@/lib/translations'
 
@@ -87,8 +86,6 @@ export default function Home() {
           {t('retour', lang)}
         </button>
       )}
-
-      <LangSwitcher className="fixed top-4 right-4" />
 
       <img src="/logo-baseline.png" alt="BLOOM — Tout peut fleurir. Même le doute..." className="w-72" />
 

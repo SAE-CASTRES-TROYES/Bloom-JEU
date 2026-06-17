@@ -4,7 +4,6 @@ import { useParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { FLEURS } from '@/lib/game'
 import { t } from '@/lib/translations'
-import { LangSwitcher } from '@/app/lang-switcher'
 import { useLang } from '@/app/providers'
 
 export default function PlayerPage() {
@@ -131,7 +130,6 @@ export default function PlayerPage() {
 
   return (
     <main className="min-h-screen bg-bloom-cream-light flex flex-col items-center px-5 py-8 gap-6">
-      <LangSwitcher className="fixed bottom-4 left-4 z-50" />
       <img src="/logo.svg" alt="BLOOM" className="w-28" />
       <h1 className="font-title text-2xl text-bloom-violet-dark">🌿 {player.pseudo}</h1>
 

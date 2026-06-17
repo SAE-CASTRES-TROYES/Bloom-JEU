@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { construireDeck, distribuerRoles, tirerMission, getNbRonces, FLEURS, FLEUR_CONFIGS, CARTE_INFO } from '@/lib/game'
 import { t } from '@/lib/translations'
-import { LangSwitcher } from '@/app/lang-switcher'
 import { useLang } from '@/app/providers'
 
 export default function TablePage() {
@@ -238,8 +237,6 @@ export default function TablePage() {
       <button onClick={() => router.push('/')} className="fixed top-4 left-4 text-bloom-violet-dark text-base font-semibold bg-transparent">
         ← Accueil
       </button>
-      <LangSwitcher className="fixed bottom-4 left-4 z-50" />
-
       {/* Badge score — visible hors LOBBY */}
       {game?.phase !== 'LOBBY' && (
         <div className="fixed top-3 right-3 flex gap-1.5 z-50">
