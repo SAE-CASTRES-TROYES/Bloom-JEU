@@ -84,17 +84,17 @@ export default function PlayerPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-bloom-cream flex items-center justify-center">
-        <p className="font-title text-xl text-bloom-violet">Chargement...</p>
+      <main className="min-h-screen bg-bloom-cream-light flex items-center justify-center px-5">
+        <p className="font-title text-xl text-bloom-violet-dark">Chargement...</p>
       </main>
     )
   }
 
   if (!player) {
     return (
-      <main className="min-h-screen bg-bloom-cream flex flex-col items-center justify-center gap-4 p-6 text-center">
-        <p className="text-xl text-bloom-burgundy">Joueur introuvable.</p>
-        <p className="text-bloom-violet-light">Rejoins la partie depuis la page d&apos;accueil.</p>
+      <main className="min-h-screen bg-bloom-cream-light flex flex-col items-center justify-center gap-4 px-5 text-center">
+        <p className="text-lg text-bloom-rose font-bold">Joueur introuvable.</p>
+        <p className="text-base text-bloom-gray-dark">Rejoins la partie depuis la page d&apos;accueil.</p>
       </main>
     )
   }
@@ -102,43 +102,45 @@ export default function PlayerPage() {
   const estRonce = player.role === 'ronce'
 
   return (
-    <main className="min-h-screen bg-bloom-cream flex flex-col items-center justify-center gap-6 p-6">
-      <img src="/logo.svg" alt="BLOOM" className="w-36" />
-      <h1 className="font-title text-3xl text-bloom-violet">🌿 {player.pseudo}</h1>
+    <main className="min-h-screen bg-bloom-cream-light flex flex-col items-center px-5 py-8 gap-6">
+      <img src="/logo.svg" alt="BLOOM" className="w-28" />
+      <h1 className="font-title text-2xl text-bloom-violet-dark">🌿 {player.pseudo}</h1>
 
       {game?.phase === 'LOBBY' && (
-        <div className="bg-white rounded-2xl p-6 shadow-md text-center animate-pulse">
-          <p className="text-bloom-violet-light text-lg">En attente du Grand Arbre...</p>
-          <p className="text-4xl mt-4">⏳</p>
-          <p className="text-bloom-violet-pale mt-2">La partie va bientôt commencer</p>
+        <div className="w-[90%] max-w-sm mx-auto bg-white rounded-2xl p-6 shadow-md text-center">
+          <p className="text-5xl animate-pulse">🌸</p>
+          <p className="font-title text-xl text-bloom-violet-dark mt-4">En attente du Grand Arbre...</p>
+          <p className="text-base text-bloom-violet-medium mt-2">La partie va bientôt commencer</p>
         </div>
       )}
 
       {game?.phase === 'ROLE' && player.role && (
         <div
-          className={`rounded-2xl p-8 shadow-md text-center text-white w-full max-w-sm ${
-            estRonce ? 'bg-bloom-burgundy' : 'bg-bloom-sage'
+          className={`w-[90%] max-w-sm mx-auto rounded-2xl p-6 shadow-md text-center ${
+            estRonce ? 'bg-bloom-rose-light' : 'bg-bloom-green-light'
           }`}
         >
-          <p className="text-5xl mb-4">{estRonce ? '🥀' : '🌸'}</p>
-          <p className="font-title text-3xl mb-4">{estRonce ? 'Ronce' : 'Jardinier'}</p>
-          <p className="text-sm opacity-90">
+          <p className="text-6xl mb-3">{estRonce ? '🥀' : '🌸'}</p>
+          <p className="font-title text-3xl text-bloom-black mb-3">{estRonce ? 'Ronce' : 'Jardinier'}</p>
+          <p className="text-base text-bloom-gray-dark">
             {estRonce
               ? 'Sabote discrètement la floraison sans te faire repérer !'
               : 'Coopère pour faire éclore les 5 fleurs légendaires !'}
           </p>
 
           {player.mission && (
-            <div className="bg-black/20 rounded-xl p-4 mt-6 text-left">
-              <p className="font-title text-lg mb-2">Ta mission secrète 🎯</p>
-              <p className="text-sm">{player.mission.texte}</p>
+            <div className={`rounded-xl p-4 mt-6 text-left ${estRonce ? 'bg-bloom-cream' : 'bg-bloom-violet-pale'}`}>
+              <p className="font-title text-lg text-bloom-black mb-2">Ta mission secrète 🎯</p>
+              <p className="text-base text-bloom-gray-dark">{player.mission.texte}</p>
             </div>
           )}
 
           <button
             onClick={confirmerRole}
             disabled={player.mission_accomplie || confirmation}
-            className="bg-bloom-violet text-white rounded-2xl p-3 text-lg font-bold shadow-md hover:bg-bloom-violet/90 disabled:opacity-60 mt-6 w-full"
+            className={`min-h-[52px] text-white rounded-2xl px-6 text-base font-bold shadow-md disabled:opacity-60 mt-6 w-full ${
+              estRonce ? 'bg-bloom-rose' : 'bg-bloom-green'
+            }`}
           >
             {player.mission_accomplie ? '✓ Compris !' : "J'ai pris connaissance de mon rôle"}
           </button>
