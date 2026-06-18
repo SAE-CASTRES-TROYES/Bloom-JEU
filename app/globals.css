@@ -9,27 +9,27 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  --color-bloom-violet-dark: #4F4473;
-  --color-bloom-violet-medium: #8F77C7;
-  --color-bloom-violet-light: #CABFE3;
-  --color-bloom-violet-pale: #E4DDF2;
-  --color-bloom-gold: #E9C75F;
-  --color-bloom-gold-light: #F1DA8C;
-  --color-bloom-cream: #F8ECBF;
-  --color-bloom-cream-light: #FCF6E2;
-  --color-bloom-black: #2E2433;
-  --color-bloom-gray-dark: #3D2E46;
-  --color-bloom-rose: #CF6B88;
-  --color-bloom-rose-light: #F9DCE3;
-  --color-bloom-green: #6C855A;
-  --color-bloom-green-light: #DBE4D4;
-  --color-bloom-blue: #95C6D8;
-  --color-bloom-blue-light: #B0DBEB;
+  --color-bloom-violet-dark:     #4F4473;
+  --color-bloom-violet-medium:   #8F77C7;
+  --color-bloom-violet-light:    #CABFE3;
+  --color-bloom-violet-pale:     #E4DDF2;
+  --color-bloom-gold:            #E9C75F;
+  --color-bloom-gold-light:      #F1DA8C;
+  --color-bloom-cream:           #F8ECBF;
+  --color-bloom-cream-light:     #FCF6E2;
+  --color-bloom-black:           #2E2433;
+  --color-bloom-gray-dark:       #3D2E46;
+  --color-bloom-rose:            #CF6B88;
+  --color-bloom-rose-light:      #F9DCE3;
+  --color-bloom-green:           #6C855A;
+  --color-bloom-green-light:     #DBE4D4;
+  --color-bloom-blue:            #95C6D8;
+  --color-bloom-blue-light:      #B0DBEB;
   --color-bloom-blue-very-light: #C1ECFD;
-  --color-bloom-blue-pale: #DAEDF5;
+  --color-bloom-blue-pale:       #DAEDF5;
 
-  --font-title: var(--font-alice), serif;
-  --font-body: var(--font-karla), sans-serif;
+  --font-title:  var(--font-alice), serif;
+  --font-body:   var(--font-karla), sans-serif;
   --font-accent: var(--font-dancing-script), cursive;
 }
 
@@ -40,13 +40,330 @@ body {
 }
 
 @layer base {
-  button:not(:disabled),
-  select,
+  /* Reset explicite : les boutons ne doivent jamais avoir de soulignement */
+  button,
   [role="button"] {
+    text-decoration: none;
     cursor: pointer;
+    border: none;
+    background: transparent;
   }
-
   button:disabled {
     cursor: not-allowed;
   }
+}
+
+
+/* ----------------------------------------------------------------
+   FONDS ATMOSPHERIQUES
+   Composition de gradients radiaux : vignettage + sources lumineuses
+---------------------------------------------------------------- */
+
+@layer components {
+
+  /* Fond lumiere - accueil et joueur Jardinier */
+  /* texture-papier.png en derniere couche (la plus basse) avec background-blend-mode:multiply */
+  /* multiply : blanc pur de la texture = neutre, grain beige/gris = legere modulation du fond creme */
+  .bloom-bg {
+    background-color: #FCF6E2;
+    background-image:
+      radial-gradient(ellipse 150% 115% at 50% 50%, transparent 40%, rgba(46, 36, 51, 0.16) 100%),
+      radial-gradient(circle 750px at 48% 12%,  rgba(241, 218, 140, 0.22) 0%, transparent 68%),
+      radial-gradient(circle 550px at 82% 84%,  rgba(202, 191, 227, 0.16) 0%, transparent 58%),
+      radial-gradient(circle 480px at 10% 66%,  rgba(176, 219, 235, 0.12) 0%, transparent 52%),
+      url('/texture-papier.png');
+    background-size: auto, auto, auto, auto, cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-blend-mode: normal, normal, normal, normal, multiply;
+  }
+
+  /* Fond mystique sombre - Grand Arbre */
+  .bloom-bg-dark {
+    background-color: #2E2433;
+    background-image:
+      radial-gradient(ellipse 150% 115% at 50% 50%, transparent 32%, rgba(0, 0, 0, 0.42) 100%),
+      radial-gradient(circle 750px at 50% 22%,  rgba(143, 119, 199, 0.30) 0%, transparent 65%),
+      radial-gradient(circle 500px at 14% 80%,  rgba(79, 68, 115, 0.38) 0%, transparent 55%),
+      radial-gradient(circle 420px at 88% 14%,  rgba(233, 199, 95, 0.07) 0%, transparent 50%);
+    background-repeat: no-repeat;
+  }
+
+  /* Fond tension - joueur Ronce */
+  .bloom-bg-ronce {
+    background-color: #F4E8ED;
+    background-image:
+      radial-gradient(ellipse 150% 115% at 50% 50%, transparent 40%, rgba(46, 36, 51, 0.22) 100%),
+      radial-gradient(circle 600px at 30% 18%,  rgba(207, 107, 136, 0.13) 0%, transparent 62%),
+      radial-gradient(circle 700px at 72% 82%,  rgba(61, 46, 70, 0.18) 0%, transparent 58%),
+      url('/texture-papier.png');
+    background-size: auto, auto, auto, cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-blend-mode: normal, normal, normal, multiply;
+  }
+
+  /* ----------------------------------------------------------------
+     SYSTEME DE CARDS
+     Profondeur physique : double ombre + gradient interne + bordure
+  ---------------------------------------------------------------- */
+
+  /* Card principale - fond clair */
+  .card-bloom {
+    background: linear-gradient(158deg, #ffffff 0%, #f6f2ff 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(202, 191, 227, 0.50);
+    box-shadow:
+      0 1px 2px  rgba(46, 36, 51, 0.05),
+      0 4px 12px rgba(46, 36, 51, 0.09),
+      0 20px 44px rgba(46, 36, 51, 0.07);
+  }
+
+  /* Card principale - fond sombre (Grand Arbre) */
+  .card-bloom-dark {
+    background: linear-gradient(158deg, rgba(79, 68, 115, 0.38) 0%, rgba(46, 36, 51, 0.60) 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(143, 119, 199, 0.28);
+    box-shadow:
+      0 2px 4px  rgba(0, 0, 0, 0.22),
+      0 8px 20px rgba(0, 0, 0, 0.28),
+      0 24px 48px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  /* Card avec double-liseré ornemental */
+  .card-framed {
+    border-radius: 16px;
+    border: 2px solid rgba(143, 119, 199, 0.72);
+    box-shadow:
+      inset 0 0 0 4px rgba(228, 221, 242, 0.85),
+      0 4px 16px rgba(46, 36, 51, 0.15),
+      0 16px 40px rgba(46, 36, 51, 0.10);
+  }
+
+  /* Card role Jardinier */
+  .card-jardinier {
+    background: linear-gradient(158deg, #f3f8f0 0%, #d5e5cb 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(108, 133, 90, 0.28);
+    box-shadow:
+      0 1px 2px  rgba(108, 133, 90, 0.06),
+      0 4px 12px rgba(108, 133, 90, 0.10),
+      0 20px 44px rgba(46, 36, 51, 0.07);
+  }
+
+  /* Card role Ronce */
+  .card-ronce {
+    background: linear-gradient(158deg, #fdf2f5 0%, #f3d5e0 100%);
+    border-radius: 16px;
+    border: 1px solid rgba(207, 107, 136, 0.28);
+    box-shadow:
+      0 1px 2px  rgba(207, 107, 136, 0.06),
+      0 4px 12px rgba(207, 107, 136, 0.10),
+      0 20px 44px rgba(46, 36, 51, 0.07);
+  }
+
+  /* ----------------------------------------------------------------
+     BOUTONS PHYSIQUES
+     Effet 3D : ombre portee epaisse sur le bas qui simule
+     une elevation. Au clic : translateY + ombre reduite.
+  ---------------------------------------------------------------- */
+
+  /* Violet - action principale */
+  .btn-bloom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    background: linear-gradient(180deg, #9d87cf 0%, #4F4473 100%);
+    border-radius: 18px;
+    box-shadow: 0 5px 0 #372e5a, 0 8px 20px rgba(79, 68, 115, 0.30);
+    transform: translateY(0);
+    transition: transform 80ms ease, box-shadow 80ms ease, background 120ms ease;
+    color: white;
+    font-weight: 700;
+    min-height: 52px;
+    padding: 0 24px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    text-decoration: none;
+    border: none;
+  }
+  .btn-bloom:hover:not(:disabled) {
+    background: linear-gradient(180deg, #aa94d8 0%, #5c5086 100%);
+  }
+  .btn-bloom:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #372e5a, 0 2px 8px rgba(79, 68, 115, 0.22);
+  }
+  .btn-bloom:disabled {
+    opacity: 0.48;
+    cursor: not-allowed;
+  }
+
+  /* Rose - action Ronce / danger */
+  .btn-rose {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    background: linear-gradient(180deg, #de8fa7 0%, #CF6B88 100%);
+    border-radius: 18px;
+    box-shadow: 0 5px 0 #9c4e68, 0 8px 20px rgba(207, 107, 136, 0.28);
+    transform: translateY(0);
+    transition: transform 80ms ease, box-shadow 80ms ease;
+    color: white;
+    font-weight: 700;
+    min-height: 52px;
+    padding: 0 24px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    text-decoration: none;
+    border: none;
+  }
+  .btn-rose:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #9c4e68, 0 2px 8px rgba(207, 107, 136, 0.20);
+  }
+  .btn-rose:disabled {
+    opacity: 0.48;
+    cursor: not-allowed;
+  }
+
+  /* Vert - action Jardinier / succes */
+  .btn-green {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    background: linear-gradient(180deg, #88a474 0%, #6C855A 100%);
+    border-radius: 18px;
+    box-shadow: 0 5px 0 #4b5d3e, 0 8px 20px rgba(108, 133, 90, 0.28);
+    transform: translateY(0);
+    transition: transform 80ms ease, box-shadow 80ms ease;
+    color: white;
+    font-weight: 700;
+    min-height: 52px;
+    padding: 0 24px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    text-decoration: none;
+    border: none;
+  }
+  .btn-green:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #4b5d3e, 0 2px 8px rgba(108, 133, 90, 0.20);
+  }
+  .btn-green:disabled {
+    opacity: 0.48;
+    cursor: not-allowed;
+  }
+
+  /* Or - resultat / revelation */
+  .btn-gold {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    background: linear-gradient(180deg, #f6e29e 0%, #E9C75F 100%);
+    border-radius: 18px;
+    box-shadow: 0 5px 0 #a88630, 0 8px 20px rgba(233, 199, 95, 0.32);
+    transform: translateY(0);
+    transition: transform 80ms ease, box-shadow 80ms ease;
+    color: #2E2433;
+    font-weight: 700;
+    min-height: 52px;
+    padding: 0 24px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    text-decoration: none;
+    border: none;
+  }
+  .btn-gold:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #a88630, 0 2px 8px rgba(233, 199, 95, 0.22);
+  }
+  .btn-gold:disabled {
+    opacity: 0.48;
+    cursor: not-allowed;
+  }
+
+  /* Ghost clair - action secondaire sur fond clair */
+  .btn-ghost {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.60);
+    border: 1.5px solid rgba(79, 68, 115, 0.30);
+    border-radius: 18px;
+    box-shadow: 0 3px 0 rgba(79, 68, 115, 0.12), 0 5px 14px rgba(79, 68, 115, 0.10);
+    transform: translateY(0);
+    transition: transform 80ms ease, box-shadow 80ms ease;
+    color: #4F4473;
+    font-weight: 700;
+    min-height: 52px;
+    padding: 0 24px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    text-decoration: none;
+  }
+  .btn-ghost:active:not(:disabled) {
+    transform: translateY(3px);
+    box-shadow: 0 0 0 rgba(79, 68, 115, 0.12), 0 2px 6px rgba(79, 68, 115, 0.08);
+  }
+  .btn-ghost:disabled {
+    opacity: 0.48;
+    cursor: not-allowed;
+  }
+
+  /* Ghost sombre - action secondaire sur fond Grand Arbre */
+  .btn-ghost-dark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    background: rgba(79, 68, 115, 0.20);
+    border: 1.5px solid rgba(143, 119, 199, 0.42);
+    border-radius: 18px;
+    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.22), 0 5px 14px rgba(0, 0, 0, 0.15);
+    transform: translateY(0);
+    transition: transform 80ms ease, box-shadow 80ms ease;
+    color: #CABFE3;
+    font-weight: 700;
+    min-height: 52px;
+    padding: 0 24px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    text-decoration: none;
+  }
+  .btn-ghost-dark:active:not(:disabled) {
+    transform: translateY(3px);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0.22), 0 2px 6px rgba(0, 0, 0, 0.12);
+  }
+  .btn-ghost-dark:disabled {
+    opacity: 0.48;
+    cursor: not-allowed;
+  }
+
+  /* Badge score fixe en haut a droite (Grand Arbre) */
+  .score-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(158deg, rgba(79, 68, 115, 0.60) 0%, rgba(46, 36, 51, 0.80) 100%);
+    border: 1px solid rgba(143, 119, 199, 0.30);
+    border-radius: 12px;
+    padding: 6px 10px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
 }
