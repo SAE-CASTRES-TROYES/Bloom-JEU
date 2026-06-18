@@ -143,7 +143,7 @@ export default function Home() {
   }
 
   return (
-    <main className="bloom-bg min-h-screen flex flex-col items-center justify-center px-5 py-10 gap-8 relative overflow-hidden">
+    <main className="bloom-bg min-h-screen flex flex-col items-center px-5 pb-10 relative overflow-hidden">
       <style dangerouslySetInnerHTML={{ __html: KEYFRAMES }} />
 
       {/* Filigranes floraux décoratifs */}
@@ -164,22 +164,25 @@ export default function Home() {
         </button>
       )}
 
-      {/* Logo — respiration douce en boucle */}
-      <img
-        src="/logo-baseline.png"
-        alt="BLOOM — Tout peut fleurir. Même le doute..."
-        className="w-full max-w-[26rem] drop-shadow-sm"
-      />
+      {/* Logo — ancré à position fixe, indépendant de la hauteur du contenu */}
+      <div className="w-full flex justify-center pt-[9vh] pb-8 shrink-0">
+        <img
+          src="/logo-baseline.png"
+          alt="BLOOM — Tout peut fleurir. Même le doute..."
+          className="w-full max-w-[26rem] drop-shadow-sm"
+        />
+      </div>
 
-      {/* Contenu — animé à chaque changement d'étape */}
-      <div
-        className="w-full flex flex-col items-center"
-        style={{
-          animation: screenAnim === 'exit'  ? 'screen-exit 240ms ease-in forwards'
-                   : screenAnim === 'enter' ? 'screen-enter 320ms ease-out forwards'
-                   : undefined,
-        }}
-      >
+      {/* Contenu — animé à chaque changement d'étape, dans l'espace restant */}
+      <div className="flex-1 w-full flex flex-col items-center justify-center">
+        <div
+          className="w-full flex flex-col items-center"
+          style={{
+            animation: screenAnim === 'exit'  ? 'screen-exit 240ms ease-in forwards'
+                     : screenAnim === 'enter' ? 'screen-enter 320ms ease-out forwards'
+                     : undefined,
+          }}
+        >
 
         {/* ── Choix du rôle ── */}
         {etape === 'choix' && (
@@ -272,6 +275,7 @@ export default function Home() {
           </div>
         )}
 
+        </div>
       </div>
       {/* ── Modale règles du jeu ── */}
       {showRules && (
