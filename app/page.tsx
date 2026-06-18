@@ -242,17 +242,18 @@ export default function Home() {
             />
 
             {/* Fleurs légendaires */}
-            <div className="w-full px-3 flex flex-wrap justify-center gap-2 sm:gap-4 md:gap-5">
+            <div className="w-full flex flex-nowrap justify-center items-end gap-1 sm:gap-3 md:gap-4 lg:gap-6">
               {[
                 { src: '/illustrations/fleurs/lavande.png', nom: 'Lavande des Souvenirs' },
                 { src: '/illustrations/fleurs/tulipe.png',  nom: 'Tulipe du Premier Printemps' },
                 { src: '/illustrations/fleurs/mimosa.png',  nom: "Mimosa de l'Aurore" },
                 { src: '/illustrations/fleurs/lys.png',     nom: 'Lys des Premières Lueurs' },
-                { src: '/illustrations/fleurs/dahlia.webp', nom: 'Dahlia du Crépuscule Pourpre' },
+                { src: '/illustrations/fleurs/dahlia.webp', nom: 'Dahlia du Crépuscule Pourpre', small: true },
               ].map(f => (
-                <div key={f.src} className="relative w-[68px] h-[90px] sm:w-[130px] sm:h-[170px] md:w-[160px] md:h-[210px]">
-                  <Image src={f.src} alt={f.nom} fill className="object-contain" />
-                </div>
+                <Image key={f.src} src={f.src} alt={f.nom} width={120} height={160}
+                  className={f.small
+                    ? 'h-[66px] sm:h-[100px] md:h-[126px] lg:h-[160px] w-auto'
+                    : 'h-[80px] sm:h-[120px] md:h-[150px] lg:h-[190px] w-auto'} />
               ))}
             </div>
 
