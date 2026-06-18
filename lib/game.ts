@@ -61,11 +61,11 @@ export function tirerMission(role: 'ronce' | 'jardinier') {
 // ─── Fleurs ────────────────────────────────────────────────────────────────
 
 export const FLEURS = [
-  { nom: 'Fleur de Lune',    emoji: '🌙', tours: 1 },
-  { nom: "Fleur d'Aurore",   emoji: '🌅', tours: 1 },
-  { nom: 'Fleur de Cristal', emoji: '💎', tours: 2 },
-  { nom: 'Fleur de Tempête', emoji: '⛈️',  tours: 2 },
-  { nom: 'Fleur Éternelle',  emoji: '✨', tours: 2 },
+  { nom: 'Fleur de Lune',    tours: 1 },
+  { nom: "Fleur d'Aurore",   tours: 1 },
+  { nom: 'Fleur de Cristal', tours: 2 },
+  { nom: 'Fleur de Tempête', tours: 2 },
+  { nom: 'Fleur Éternelle',  tours: 2 },
 ]
 
 export type TourReqis = { eau: number; soleil: number; terre: number; vent: number; pollen: number }
@@ -114,18 +114,18 @@ export const FLEUR_CONFIGS: Record<number, Record<number, FleurConfig>> = {
 
 // ─── Cartes ────────────────────────────────────────────────────────────────
 
-export const CARTE_INFO: Record<string, { emoji: string; label: string; couleur: string }> = {
-  eau:          { emoji: '💧', label: 'Eau',           couleur: '#95C6D8' },
-  soleil:       { emoji: '☀️', label: 'Soleil',        couleur: '#E9C75F' },
-  terre:        { emoji: '🌱', label: 'Terre',         couleur: '#6C855A' },
-  vent:         { emoji: '🍃', label: 'Vent',          couleur: '#C1ECFD' },
-  pollen:       { emoji: '✨', label: 'Pollen (joker)', couleur: '#CABFE3' },
-  epine:        { emoji: '🥀', label: 'Épine',         couleur: '#CF6B88' },
-  vent_mauvais: { emoji: '🌪️', label: 'Vent mauvais', couleur: '#8F77C7' },
-  seve:         { emoji: '💚', label: 'Sève',          couleur: '#6C855A' },
-  bouclier:     { emoji: '🛡️', label: 'Bouclier',     couleur: '#4F4473' },
-  regard:       { emoji: '👁️', label: 'Regard',       couleur: '#E9C75F' },
-  ronce:        { emoji: '🌿', label: 'Ronce',         couleur: '#CF6B88' },
+export const CARTE_INFO: Record<string, { label: string; couleur: string }> = {
+  eau:          { label: 'Eau',           couleur: '#95C6D8' },
+  soleil:       { label: 'Soleil',        couleur: '#E9C75F' },
+  terre:        { label: 'Terre',         couleur: '#6C855A' },
+  vent:         { label: 'Vent',          couleur: '#C1ECFD' },
+  pollen:       { label: 'Pollen (joker)', couleur: '#CABFE3' },
+  epine:        { label: 'Épine',         couleur: '#CF6B88' },
+  vent_mauvais: { label: 'Vent mauvais',  couleur: '#8F77C7' },
+  seve:         { label: 'Sève',          couleur: '#6C855A' },
+  bouclier:     { label: 'Bouclier',      couleur: '#4F4473' },
+  regard:       { label: 'Regard',        couleur: '#E9C75F' },
+  ronce:        { label: 'Ronce',         couleur: '#CF6B88' },
 }
 
 // ─── Calcul d'un tour ──────────────────────────────────────────────────────
