@@ -2,11 +2,10 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import Image from 'next/image'
 import { FLEURS, FLEUR_ILLUS } from '@/lib/game'
 import { t } from '@/lib/translations'
 import { useLang } from '@/app/providers'
-
-const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 
 export default function PlayerPage() {
   const { id } = useParams<{ id: string }>()
@@ -193,11 +192,13 @@ export default function PlayerPage() {
             style={{ height: '38vh' }}
           >
             {fleur && FLEUR_ILLUS[fleurIndex] && (
-              <img
-                src={`${BASE}${FLEUR_ILLUS[fleurIndex].eclos}`}
+              <Image
+                src={FLEUR_ILLUS[fleurIndex].eclos}
                 alt={fleur.nom}
+                width={300}
+                height={300}
                 className="object-contain"
-                style={{ maxHeight: 'calc(38vh - 3.5rem)', maxWidth: '100%', width: 'auto' }}
+                style={{ maxHeight: 'calc(38vh - 3.5rem)', maxWidth: '100%', width: 'auto', height: 'auto' }}
               />
             )}
             {fleur && (

@@ -2,18 +2,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { construireDeck, distribuerRoles, tirerMission, FLEURS, FLEUR_CONFIGS, CARTE_INFO, FLEUR_ILLUS } from '@/lib/game'
 import { t } from '@/lib/translations'
 import { useLang } from '@/app/providers'
 
-const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
-
 const RESOURCE_ILLUS: Record<string, string> = {
-  eau:    `${BASE}/illustrations/eau.png`,
-  soleil: `${BASE}/illustrations/soleil.png`,
-  vent:   `${BASE}/illustrations/vent.png`,
-  terre:  `${BASE}/illustrations/terre.png`,
+  eau:    '/illustrations/eau.png',
+  soleil: '/illustrations/soleil.png',
+  vent:   '/illustrations/vent.png',
+  terre:  '/illustrations/terre.png',
 }
 
 
@@ -269,7 +268,7 @@ export default function TablePage() {
 
       {/* Logo */}
       <div className="pt-10 pb-3 flex justify-center">
-        <img src={`${BASE}/logo-baseline.png`} alt="BLOOM" className="w-44 opacity-90" />
+        <Image src="/logo-baseline.png" alt="BLOOM" width={176} height={64} className="w-44 h-auto opacity-90" />
       </div>
 
       {/* Contenu de phase — centré dans l'espace restant */}
@@ -332,11 +331,12 @@ export default function TablePage() {
           <>
             <div className="w-full text-center">
               {FLEUR_ILLUS[fleurIndex] && (
-                <img
-                  src={`${BASE}${FLEUR_ILLUS[fleurIndex].eclos}`}
+                <Image
+                  src={FLEUR_ILLUS[fleurIndex].eclos}
                   alt={fleur.nom}
+                  width={300}
+                  height={300}
                   className="mx-auto mb-3 object-contain"
-                  style={{ width: 300, height: 300 }}
                 />
               )}
               <h2 className="font-title text-3xl text-bloom-violet-dark">{fleur.nom}</h2>
@@ -358,7 +358,7 @@ export default function TablePage() {
                         <div key={res} className="flex flex-col items-center gap-2">
                           <div className="w-24 h-24 flex items-center justify-center">
                             {illus ? (
-                              <img
+                              <Image
                                 src={illus}
                                 alt={info?.label ?? res}
                                 width={96}
@@ -410,13 +410,14 @@ export default function TablePage() {
                 : 'border-bloom-rose/40'
             }`}>
               {FLEUR_ILLUS[fleurIndex] && (
-                <img
-                  src={`${BASE}${game.resultat_fleur === 'fanee'
+                <Image
+                  src={game.resultat_fleur === 'fanee'
                     ? FLEUR_ILLUS[fleurIndex].fane
-                    : FLEUR_ILLUS[fleurIndex].eclos}`}
-                  alt={fleur?.nom}
+                    : FLEUR_ILLUS[fleurIndex].eclos}
+                  alt={fleur?.nom ?? ''}
+                  width={220}
+                  height={220}
                   className="mx-auto mb-4 object-contain"
-                  style={{ width: 220, height: 220 }}
                 />
               )}
               <p className="font-title text-3xl text-bloom-violet-dark">

@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import { useLang } from './providers'
 import { t } from '@/lib/translations'
@@ -8,8 +9,6 @@ import { t } from '@/lib/translations'
 function generateCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase()
 }
-
-const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
 
 type Etape = 'choix' | 'arbre' | 'joueur'
 
@@ -168,10 +167,13 @@ export default function Home() {
 
       {/* Logo — ancré à position fixe, indépendant de la hauteur du contenu */}
       <div className="w-full flex justify-center pt-[9vh] pb-8 shrink-0">
-        <img
-          src={`${BASE}/logo-baseline.png`}
+        <Image
+          src="/logo-baseline.png"
           alt="BLOOM — Tout peut fleurir. Même le doute..."
-          className="w-full max-w-[26rem] drop-shadow-sm"
+          width={416}
+          height={148}
+          className="w-full max-w-[26rem] drop-shadow-sm h-auto"
+          priority
         />
       </div>
 

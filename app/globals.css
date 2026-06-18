@@ -71,7 +71,7 @@ body {
       radial-gradient(circle 750px at 48% 12%,  rgba(241, 218, 140, 0.22) 0%, transparent 68%),
       radial-gradient(circle 550px at 82% 84%,  rgba(202, 191, 227, 0.16) 0%, transparent 58%),
       radial-gradient(circle 480px at 10% 66%,  rgba(176, 219, 235, 0.12) 0%, transparent 52%),
-      url('/jeu/texture-papier.png');
+      url('/texture-papier.png');
     background-size: auto, auto, auto, auto, cover;
     background-repeat: no-repeat;
     background-position: center;
@@ -96,7 +96,7 @@ body {
       radial-gradient(ellipse 150% 115% at 50% 50%, transparent 40%, rgba(46, 36, 51, 0.22) 100%),
       radial-gradient(circle 600px at 30% 18%,  rgba(207, 107, 136, 0.13) 0%, transparent 62%),
       radial-gradient(circle 700px at 72% 82%,  rgba(61, 46, 70, 0.18) 0%, transparent 58%),
-      url('/jeu/texture-papier.png');
+      url('/texture-papier.png');
     background-size: auto, auto, auto, cover;
     background-repeat: no-repeat;
     background-position: center;
@@ -145,7 +145,7 @@ body {
   /* Card role Jardinier — même fond crème texturé que la page */
   .card-jardinier {
     background-color: #FCF6E2;
-    background-image: url('/jeu/texture-papier.png');
+    background-image: url('/texture-papier.png');
     background-size: cover;
     background-blend-mode: multiply;
     border-radius: 16px;
@@ -159,7 +159,7 @@ body {
   /* Card role Ronce — fond crème rosé texturé, cohérent avec bloom-bg-ronce */
   .card-ronce {
     background-color: #F4E8ED;
-    background-image: url('/jeu/texture-papier.png');
+    background-image: url('/texture-papier.png');
     background-size: cover;
     background-blend-mode: multiply;
     border-radius: 16px;
