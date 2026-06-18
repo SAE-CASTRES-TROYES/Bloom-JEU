@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="PERSONNAGE" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28.01 26.93">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #e3ddef;
+        stroke: #8d77b5;
+        stroke-miterlimit: 10;
+      }
+
+      .cls-2 {
+        fill: #8d77b5;
+      }
+    </style>
+  </defs>
+  <g id="Calque_12" data-name="Calque 12">
+    <g id="Calque_11" data-name="Calque 11">
+      <circle class="cls-1" cx="13.68" cy="6.64" r="6.14"/>
+      <circle class="cls-1" cx="21.37" cy="10.72" r="6.14"/>
+      <circle class="cls-1" cx="20.09" cy="19.7" r="6.14"/>
+      <circle class="cls-1" cx="6.64" cy="12.33" r="6.14"/>
+      <circle class="cls-1" cx="9.71" cy="20.28" r="6.14"/>
+      <circle class="cls-2" cx="14.65" cy="14.18" r="3.41"/>
+    </g>
+  </g>
+</svg>

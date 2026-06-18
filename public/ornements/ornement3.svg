@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="PERSONNAGE" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 77.27 69.62">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #e3ddef;
+        stroke: #8d77b5;
+        stroke-miterlimit: 10;
+      }
+    </style>
+  </defs>
+  <g id="Calque_12" data-name="Calque 12">
+    <path class="cls-1" d="M11.4,64.5l-1.67-7.36c-.16-.69-.66-1.08-1.15-.91l-7.36,2.58c-.52.18-.84.94-.7,1.68l1.39,7.61c.13.73.66,1.17,1.18.98l7.63-2.83c.54-.2.85-1,.67-1.75Z"/>
+  </g>
+</svg>
