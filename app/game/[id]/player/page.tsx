@@ -119,10 +119,10 @@ export default function PlayerPage() {
   }
 
   const estRonce   = player.role === 'ronce'
-  const estElimne  = !!player.elimine
+  const estElimine  = !!player.elimine
   const bgClass    = estRonce ? 'bloom-bg-ronce' : 'bloom-bg'
 
-  if (estElimne) {
+  if (estElimine) {
     return (
       <main className={`h-dvh ${bgClass} flex flex-col items-center justify-center px-8 text-center`}>
         <div className="w-full max-w-xs flex flex-col items-center gap-4">
@@ -218,7 +218,7 @@ export default function PlayerPage() {
               </div>
             )}
 
-            {estElimne ? (
+            {estElimine ? (
               <div className="card-ronce p-4 w-full text-center">
                 <p className="text-sm font-bold text-bloom-gray-dark">{t('elimine_mission', lang)}</p>
               </div>
@@ -303,7 +303,7 @@ export default function PlayerPage() {
                   <p className="text-sm text-bloom-violet-medium mt-1">{t('designe_suspect', lang)}</p>
                 </div>
 
-                {estElimne ? (
+                {estElimine ? (
                   <div className="card-ronce p-5 w-full text-center">
                     <p className="text-base font-bold text-bloom-gray-dark">{t('elimine_vote', lang)}</p>
                   </div>
