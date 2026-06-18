@@ -142,25 +142,31 @@ body {
       0 16px 40px rgba(46, 36, 51, 0.10);
   }
 
-  /* Card role Jardinier */
+  /* Card role Jardinier — même fond crème texturé que la page */
   .card-jardinier {
-    background: linear-gradient(158deg, #f3f8f0 0%, #d5e5cb 100%);
+    background-color: #FCF6E2;
+    background-image: url('/texture-papier.png');
+    background-size: cover;
+    background-blend-mode: multiply;
     border-radius: 16px;
-    border: 1px solid rgba(108, 133, 90, 0.28);
+    border: 1.5px solid rgba(202, 191, 227, 0.55);
     box-shadow:
-      0 1px 2px  rgba(108, 133, 90, 0.06),
-      0 4px 12px rgba(108, 133, 90, 0.10),
+      0 1px 2px  rgba(46, 36, 51, 0.05),
+      0 4px 12px rgba(46, 36, 51, 0.09),
       0 20px 44px rgba(46, 36, 51, 0.07);
   }
 
-  /* Card role Ronce */
+  /* Card role Ronce — fond crème rosé texturé, cohérent avec bloom-bg-ronce */
   .card-ronce {
-    background: linear-gradient(158deg, #fdf2f5 0%, #f3d5e0 100%);
+    background-color: #F4E8ED;
+    background-image: url('/texture-papier.png');
+    background-size: cover;
+    background-blend-mode: multiply;
     border-radius: 16px;
-    border: 1px solid rgba(207, 107, 136, 0.28);
+    border: 1.5px solid rgba(207, 107, 136, 0.40);
     box-shadow:
-      0 1px 2px  rgba(207, 107, 136, 0.06),
-      0 4px 12px rgba(207, 107, 136, 0.10),
+      0 1px 2px  rgba(46, 36, 51, 0.05),
+      0 4px 12px rgba(46, 36, 51, 0.09),
       0 20px 44px rgba(46, 36, 51, 0.07);
   }
 
