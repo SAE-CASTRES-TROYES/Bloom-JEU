@@ -6,6 +6,8 @@ import { FLEURS, FLEUR_ILLUS } from '@/lib/game'
 import { t } from '@/lib/translations'
 import { useLang } from '@/app/providers'
 
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
+
 export default function PlayerPage() {
   const { id } = useParams<{ id: string }>()
   const { lang } = useLang()
@@ -192,7 +194,7 @@ export default function PlayerPage() {
           >
             {fleur && FLEUR_ILLUS[fleurIndex] && (
               <img
-                src={FLEUR_ILLUS[fleurIndex].eclos}
+                src={`${BASE}${FLEUR_ILLUS[fleurIndex].eclos}`}
                 alt={fleur.nom}
                 className="object-contain"
                 style={{ maxHeight: 'calc(38vh - 3.5rem)', maxWidth: '100%', width: 'auto' }}

@@ -7,11 +7,13 @@ import { construireDeck, distribuerRoles, tirerMission, FLEURS, FLEUR_CONFIGS, C
 import { t } from '@/lib/translations'
 import { useLang } from '@/app/providers'
 
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
+
 const RESOURCE_ILLUS: Record<string, string> = {
-  eau:    '/illustrations/eau.png',
-  soleil: '/illustrations/soleil.png',
-  vent:   '/illustrations/vent.png',
-  terre:  '/illustrations/terre.png',
+  eau:    `${BASE}/illustrations/eau.png`,
+  soleil: `${BASE}/illustrations/soleil.png`,
+  vent:   `${BASE}/illustrations/vent.png`,
+  terre:  `${BASE}/illustrations/terre.png`,
 }
 
 
@@ -267,7 +269,7 @@ export default function TablePage() {
 
       {/* Logo */}
       <div className="pt-10 pb-3 flex justify-center">
-        <img src="/logo-baseline.png" alt="BLOOM" className="w-44 opacity-90" />
+        <img src={`${BASE}/logo-baseline.png`} alt="BLOOM" className="w-44 opacity-90" />
       </div>
 
       {/* Contenu de phase — centré dans l'espace restant */}
@@ -331,7 +333,7 @@ export default function TablePage() {
             <div className="w-full text-center">
               {FLEUR_ILLUS[fleurIndex] && (
                 <img
-                  src={FLEUR_ILLUS[fleurIndex].eclos}
+                  src={`${BASE}${FLEUR_ILLUS[fleurIndex].eclos}`}
                   alt={fleur.nom}
                   className="mx-auto mb-3 object-contain"
                   style={{ width: 300, height: 300 }}
@@ -409,9 +411,9 @@ export default function TablePage() {
             }`}>
               {FLEUR_ILLUS[fleurIndex] && (
                 <img
-                  src={game.resultat_fleur === 'fanee'
+                  src={`${BASE}${game.resultat_fleur === 'fanee'
                     ? FLEUR_ILLUS[fleurIndex].fane
-                    : FLEUR_ILLUS[fleurIndex].eclos}
+                    : FLEUR_ILLUS[fleurIndex].eclos}`}
                   alt={fleur?.nom}
                   className="mx-auto mb-4 object-contain"
                   style={{ width: 220, height: 220 }}

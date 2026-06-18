@@ -9,6 +9,8 @@ function generateCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase()
 }
 
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? ''
+
 type Etape = 'choix' | 'arbre' | 'joueur'
 
 function FloralCorner({ className }: { className?: string }) {
@@ -167,7 +169,7 @@ export default function Home() {
       {/* Logo — ancré à position fixe, indépendant de la hauteur du contenu */}
       <div className="w-full flex justify-center pt-[9vh] pb-8 shrink-0">
         <img
-          src="/logo-baseline.png"
+          src={`${BASE}/logo-baseline.png`}
           alt="BLOOM — Tout peut fleurir. Même le doute..."
           className="w-full max-w-[26rem] drop-shadow-sm"
         />
