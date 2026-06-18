@@ -202,17 +202,19 @@ export default function Home() {
         </button>
       )}
 
-      {/* Logo — ancré à position fixe, indépendant de la hauteur du contenu */}
-      <div className="w-full flex justify-center pt-[9vh] pb-8 shrink-0">
-        <Image
-          src="/logo-baseline.png"
-          alt="BLOOM — Tout peut fleurir. Même le doute..."
-          width={416}
-          height={148}
-          className="w-full max-w-[26rem] drop-shadow-sm h-auto"
-          priority
-        />
-      </div>
+      {/* Logo — masqué sur l'écran choix (inclus dans le bloc centré) */}
+      {etape !== 'choix' && (
+        <div className="w-full flex justify-center pt-[4vh] pb-2 shrink-0">
+          <Image
+            src="/logo-baseline.png"
+            alt="BLOOM — Tout peut fleurir. Même le doute..."
+            width={576}
+            height={205}
+            className="w-full max-w-[36rem] drop-shadow-sm h-auto"
+            priority
+          />
+        </div>
+      )}
 
       {/* Contenu — animé à chaque changement d'étape, dans l'espace restant */}
       <div className="flex-1 w-full flex flex-col items-center justify-center">
@@ -227,38 +229,66 @@ export default function Home() {
 
         {/* ── Choix du rôle ── */}
         {etape === 'choix' && (
-          <div className="w-[90%] max-w-sm flex flex-col items-center gap-5">
+          <div className="flex flex-col items-center gap-3 w-full py-6">
 
-            <button
-              onClick={() => handleChoice('arbre')}
-              className="btn-bloom w-full text-lg"
-              style={{
-                animation: clicking === 'arbre'
-                  ? 'btn-tap 220ms ease-out forwards'
-                  : 'btn-pulse-arbre 3.6s ease-in-out infinite',
-              }}
-            >
-              {t('btn_arbre', lang)}
-            </button>
+            {/* Logo centré avec la composition */}
+            <Image
+              src="/logo-baseline.png"
+              alt="BLOOM — Tout peut fleurir. Même le doute..."
+              width={576}
+              height={205}
+              className="w-full max-w-[36rem] drop-shadow-sm h-auto"
+              priority
+            />
 
-            <button
-              onClick={() => handleChoice('joueur')}
-              className="btn-rose w-full text-lg"
-              style={{
-                animation: clicking === 'joueur'
-                  ? 'btn-tap 220ms ease-out forwards'
-                  : 'btn-pulse-joueur 3.9s ease-in-out 1.4s infinite',
-              }}
-            >
-              {t('btn_joueur', lang)}
-            </button>
+            {/* Fleurs légendaires */}
+            <div className="w-full px-3 flex flex-wrap justify-center gap-2 sm:gap-4 md:gap-5">
+              {[
+                { src: '/illustrations/fleurs/lavande.png', nom: 'Lavande des Souvenirs' },
+                { src: '/illustrations/fleurs/tulipe.png',  nom: 'Tulipe du Premier Printemps' },
+                { src: '/illustrations/fleurs/mimosa.png',  nom: "Mimosa de l'Aurore" },
+                { src: '/illustrations/fleurs/lys.png',     nom: 'Lys des Premières Lueurs' },
+                { src: '/illustrations/fleurs/dahlia.webp', nom: 'Dahlia du Crépuscule Pourpre' },
+              ].map(f => (
+                <div key={f.src} className="relative w-[68px] h-[90px] sm:w-[130px] sm:h-[170px] md:w-[160px] md:h-[210px]">
+                  <Image src={f.src} alt={f.nom} fill className="object-contain" />
+                </div>
+              ))}
+            </div>
 
-            <button
-              onClick={() => setShowRules(true)}
-              className="w-full min-h-[52px] rounded-[18px] border-2 border-bloom-violet-light bg-bloom-violet-pale/40 text-bloom-violet-dark font-body font-semibold text-base transition-colors hover:bg-bloom-violet-pale"
-            >
-              {t('rules_btn', lang)}
-            </button>
+            {/* Boutons */}
+            <div className="w-[90%] max-w-sm flex flex-col gap-4">
+              <button
+                onClick={() => handleChoice('arbre')}
+                className="btn-bloom w-full text-lg"
+                style={{
+                  animation: clicking === 'arbre'
+                    ? 'btn-tap 220ms ease-out forwards'
+                    : 'btn-pulse-arbre 3.6s ease-in-out infinite',
+                }}
+              >
+                {t('btn_arbre', lang)}
+              </button>
+
+              <button
+                onClick={() => handleChoice('joueur')}
+                className="btn-rose w-full text-lg"
+                style={{
+                  animation: clicking === 'joueur'
+                    ? 'btn-tap 220ms ease-out forwards'
+                    : 'btn-pulse-joueur 3.9s ease-in-out 1.4s infinite',
+                }}
+              >
+                {t('btn_joueur', lang)}
+              </button>
+
+              <button
+                onClick={() => setShowRules(true)}
+                className="w-full min-h-[52px] rounded-[18px] border-2 border-bloom-violet-light bg-bloom-violet-pale/40 text-bloom-violet-dark font-body font-semibold text-base transition-colors hover:bg-bloom-violet-pale"
+              >
+                {t('rules_btn', lang)}
+              </button>
+            </div>
           </div>
         )}
 
@@ -343,8 +373,8 @@ export default function Home() {
           onClick={() => setShowRules(false)}
         >
           <div
-            className="relative w-full max-w-lg bg-bloom-cream rounded-3xl shadow-2xl max-h-[85vh] overflow-y-auto"
-            style={{ animation: 'modal-in 280ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards' }}
+            className="relative w-full max-w-lg rounded-3xl shadow-2xl max-h-[85vh] overflow-y-auto border border-[#CABFE3]"
+            style={{ backgroundColor: '#E4DDF2', animation: 'modal-in 280ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards' }}
             onClick={e => e.stopPropagation()}
           >
             {/* Bouton fermeture */}
@@ -371,7 +401,7 @@ export default function Home() {
                 <p className="font-body text-sm text-bloom-gray-dark">{t('rules_grand_arbre_desc', lang)}</p>
               </section>
 
-              <hr className="border-bloom-violet-light/40" />
+              <hr className="border-[#CABFE3]/70" />
 
               {/* Les deux camps */}
               <section className="flex flex-col gap-2">
@@ -388,7 +418,7 @@ export default function Home() {
                 </div>
               </section>
 
-              <hr className="border-bloom-violet-light/40" />
+              <hr className="border-[#CABFE3]/70" />
 
               {/* Déroulement */}
               <section className="flex flex-col gap-2">
@@ -396,7 +426,7 @@ export default function Home() {
                 <p className="font-body text-sm text-bloom-gray-dark">{t('rules_flow', lang)}</p>
               </section>
 
-              <hr className="border-bloom-violet-light/40" />
+              <hr className="border-[#CABFE3]/70" />
 
               {/* Entre les fleurs */}
               <section className="flex flex-col gap-2">
@@ -404,7 +434,7 @@ export default function Home() {
                 <p className="font-body text-sm text-bloom-gray-dark">{t('rules_vote', lang)}</p>
               </section>
 
-              <hr className="border-bloom-violet-light/40" />
+              <hr className="border-[#CABFE3]/70" />
 
               {/* Victoire */}
               <section className="flex flex-col gap-2">
