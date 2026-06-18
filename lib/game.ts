@@ -69,11 +69,11 @@ export function tirerMission(role: 'ronce' | 'jardinier') {
 // ─── Fleurs ────────────────────────────────────────────────────────────────
 
 export const FLEURS = [
-  { nom: 'Lavande' },
-  { nom: 'Rose' },
-  { nom: 'Mimosas' },
-  { nom: 'Lys' },
-  { nom: 'Dahlia' },
+  { nom: 'Lavande des Souvenirs' },
+  { nom: 'Tulipe du Premier Printemps' },
+  { nom: 'Mimosa de l\'Aurore' },
+  { nom: 'Lys des Premières Lueurs' },
+  { nom: 'Dahlia du Crépuscule Pourpre' },
 ]
 
 export type TourReqis = { eau: number; soleil: number; terre: number; vent: number; pollen: number }
@@ -136,10 +136,10 @@ export const CARTE_INFO: Record<string, { label: string; couleur: string }> = {
   terre:        { label: 'Terre',          couleur: '#6C855A' },
   vent:         { label: 'Vent',           couleur: '#C1ECFD' },
   pollen:       { label: 'Pollen (joker)', couleur: '#CABFE3' },
-  epine:        { label: 'Épine',          couleur: '#CF6B88' },
-  vent_mauvais: { label: 'Vent mauvais',   couleur: '#8F77C7' },
-  seve:         { label: 'Sève',           couleur: '#6C855A' },
-  bouclier:     { label: 'Bouclier',       couleur: '#4F4473' },
+  epine:        { label: 'Épines',          couleur: '#CF6B88' },
+  vent_mauvais: { label: 'Bourrasque',     couleur: '#8F77C7' },
+  seve:         { label: 'Sève Purifiante', couleur: '#6C855A' },
+  bouclier:     { label: 'Mousse Protectrice', couleur: '#4F4473' },
 }
 
 // ─── Calcul d'un tour ──────────────────────────────────────────────────────

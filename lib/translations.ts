@@ -29,7 +29,7 @@ const translations = {
     rules_grand_arbre_desc:       'La tablette centrale qui affiche le jardin, les fleurs et guide la partie.',
     rules_camps_title:            'Les deux camps',
     rules_jardiniers_name:        'Les Jardiniers',
-    rules_jardiniers_desc:        'Faites éclore les 5 fleurs',
+    rules_jardiniers_desc:        'Faites éclore 3 fleurs sur 5',
     rules_ronces_name:            'Les Ronces',
     rules_ronces_desc:            'Sabotez sans être démasqué',
     rules_deroulement_title:      'Le déroulement d\'une fleur',
@@ -37,7 +37,7 @@ const translations = {
     rules_entre_title:            'Entre les fleurs',
     rules_vote:                   'Votez pour démasquer un suspect.',
     rules_victoire_title:         'Conditions de victoire',
-    rules_victoire_jardiniers:    'Jardiniers : 5 fleurs écloses OU 2 Ronces démasquées',
+    rules_victoire_jardiniers:    'Jardiniers : 3 fleurs écloses OU toutes les Ronces démasquées',
     rules_victoire_ronces:        'Ronces : 3 fleurs fanées',
 
     // Lobby (joueur)
@@ -46,7 +46,7 @@ const translations = {
 
     // Rôle (joueur)
     role_ronce_desc:      'Sabote discrètement la floraison sans te faire repérer !',
-    role_jardinier_desc:  'Coopère pour faire éclore les 5 fleurs légendaires !',
+    role_jardinier_desc:  'Coopère pour faire éclore 3 des 5 fleurs légendaires !',
     mission_secrete:      'Ta mission secrète',
     confirmer_role_btn:   "J'ai pris connaissance de mon rôle",
     compris:              '✓ Compris !',
@@ -164,7 +164,7 @@ const translations = {
     rules_grand_arbre_desc:       'The central tablet displaying the garden, flowers and guiding the game.',
     rules_camps_title:            'The two sides',
     rules_jardiniers_name:        'The Gardeners',
-    rules_jardiniers_desc:        'Make the 5 flowers bloom',
+    rules_jardiniers_desc:        'Make 3 out of 5 flowers bloom',
     rules_ronces_name:            'The Thorns',
     rules_ronces_desc:            'Sabotage without getting caught',
     rules_deroulement_title:      'How a flower works',
@@ -172,7 +172,7 @@ const translations = {
     rules_entre_title:            'Between flowers',
     rules_vote:                   'Vote to unmask a suspect.',
     rules_victoire_title:         'Victory conditions',
-    rules_victoire_jardiniers:    'Gardeners: 5 flowers bloomed OR 2 Thorns unmasked',
+    rules_victoire_jardiniers:    'Gardeners: 3 flowers bloomed OR all Thorns unmasked',
     rules_victoire_ronces:        'Thorns: 3 flowers withered',
 
     chargement:           'Loading...',
@@ -183,7 +183,7 @@ const translations = {
     partie_bientot:       'The game will start soon',
 
     role_ronce_desc:      'Secretly sabotage the blooming without getting caught!',
-    role_jardinier_desc:  'Cooperate to make the 5 legendary flowers bloom!',
+    role_jardinier_desc:  'Cooperate to make 3 of the 5 legendary flowers bloom!',
     mission_secrete:      'Your secret mission',
     confirmer_role_btn:   'I have read my role',
     compris:              '✓ Got it!',
@@ -291,7 +291,7 @@ const translations = {
     rules_grand_arbre_desc:       'La tableta central que muestra el jardín, las flores y guía la partida.',
     rules_camps_title:            'Los dos bandos',
     rules_jardiniers_name:        'Los Jardineros',
-    rules_jardiniers_desc:        'Haced florecer las 5 flores',
+    rules_jardiniers_desc:        'Haced florecer 3 de las 5 flores',
     rules_ronces_name:            'Las Zarzas',
     rules_ronces_desc:            'Sabotead sin ser descubiertos',
     rules_deroulement_title:      'El desarrollo de una flor',
@@ -299,7 +299,7 @@ const translations = {
     rules_entre_title:            'Entre flores',
     rules_vote:                   'Votad para desenmascarar a un sospechoso.',
     rules_victoire_title:         'Condiciones de victoria',
-    rules_victoire_jardiniers:    'Jardineros: 5 flores florecidas O 2 Zarzas desenmascaradas',
+    rules_victoire_jardiniers:    'Jardineros: 3 flores florecidas O todas las Zarzas desenmascaradas',
     rules_victoire_ronces:        'Zarzas: 3 flores marchitas',
 
     chargement:           'Cargando...',
@@ -310,7 +310,7 @@ const translations = {
     partie_bientot:       'La partida va a empezar pronto',
 
     role_ronce_desc:      'Sabotea discretamente la floración sin que te pillen!',
-    role_jardinier_desc:  'Coopera para hacer florecer las 5 flores legendarias!',
+    role_jardinier_desc:  'Coopera para hacer florecer 3 de las 5 flores legendarias!',
     mission_secrete:      'Tu misión secreta',
     confirmer_role_btn:   'He leído mi rol',
     compris:              '✓ Entendido!',
