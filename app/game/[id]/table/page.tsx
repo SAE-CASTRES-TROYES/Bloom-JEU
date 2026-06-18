@@ -239,7 +239,7 @@ export default function TablePage() {
   }
 
   return (
-    <main className="bloom-bg min-h-screen flex flex-col items-center px-5">
+    <main className="bloom-bg min-h-screen relative">
 
       {/* Navigation fixe */}
       <button
@@ -266,25 +266,31 @@ export default function TablePage() {
         </div>
       )}
 
-      {/* Logo */}
-      <div className="pt-10 pb-3 flex justify-center">
-        <Image src="/logo-baseline.png" alt="BLOOM" width={176} height={64} className="w-44 h-auto opacity-90" />
-      </div>
+      {/* ── LOBBY : layout centré pleine page, logo inclus dans le groupe ── */}
+      {game?.phase === 'LOBBY' && (
+        <div className="min-h-screen flex flex-col items-center px-5 pt-[5vh] pb-24 overflow-y-auto">
+          <div className="w-full max-w-lg flex flex-col items-center gap-2">
 
-      {/* Contenu de phase — centré dans l'espace restant */}
-      <div className="flex-1 w-full max-w-lg flex flex-col items-center justify-center gap-4 pb-8">
+            <Image src="/logo-baseline.png" alt="BLOOM" width={176} height={64} className="w-36 md:w-44 h-auto opacity-90 mb-1" />
 
-        {/* LOBBY */}
-        {game?.phase === 'LOBBY' && (
-          <>
-            <div className="card-bloom p-6 w-full text-center">
-              <p className="text-bloom-violet-dark text-base">{t('code_partie', lang)}</p>
-              <p className="font-title tracking-widest text-bloom-gold text-4xl sm:text-5xl mt-1">{game?.code}</p>
-              <p className="text-bloom-violet-dark text-base mt-2">{t('joueurs_rejoignent', lang)}</p>
+            <div className="relative w-full h-[40vh] md:h-[50vh] lg:h-[55vh]">
+              <Image
+                src="/illustrations/grand-arbre.png"
+                alt="Le Grand Arbre"
+                fill
+                className="object-contain"
+                style={{ objectPosition: 'bottom center' }}
+              />
             </div>
 
-            <div className="card-bloom p-6 w-full">
-              <h2 className="font-title text-lg mb-4 text-bloom-violet-dark">
+            <div className="card-bloom p-4 w-full text-center">
+              <p className="text-bloom-violet-dark text-base">{t('code_partie', lang)}</p>
+              <p className="font-title tracking-widest text-bloom-gold text-4xl sm:text-5xl mt-0.5">{game?.code}</p>
+              <p className="text-bloom-violet-dark text-base mt-1">{t('joueurs_rejoignent', lang)}</p>
+            </div>
+
+            <div className="card-bloom p-4 w-full">
+              <h2 className="font-title text-lg mb-2 text-bloom-violet-dark">
                 {t('joueurs_connectes', lang)} ({joueurs.length}/{game?.nb_joueurs})
               </h2>
               <div className="flex flex-col gap-2">
@@ -305,8 +311,21 @@ export default function TablePage() {
                 {t('lancer_partie', lang)}
               </button>
             )}
-          </>
-        )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Autres phases : logo ancré en haut, contenu centré en dessous ── */}
+      {game?.phase !== 'LOBBY' && (
+      <div className="flex flex-col items-center px-5 min-h-screen">
+
+      {/* Logo */}
+      <div className="pt-10 pb-3 flex justify-center w-full">
+        <Image src="/logo-baseline.png" alt="BLOOM" width={176} height={64} className="w-44 h-auto opacity-90" />
+      </div>
+
+      {/* Contenu de phase — centré dans l'espace restant */}
+      <div className="flex-1 w-full max-w-lg mx-auto flex flex-col items-center justify-center gap-4 pb-8">
 
         {/* ROLE */}
         {game?.phase === 'ROLE' && (
@@ -590,6 +609,9 @@ export default function TablePage() {
         )}
 
       </div>
+      </div>
+      )}
+
     </main>
   )
 }

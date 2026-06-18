@@ -181,7 +181,7 @@ export default function Home() {
   }
 
   return (
-    <main className="bloom-bg min-h-screen flex flex-col items-center px-5 pb-10 relative overflow-hidden">
+    <main className="bloom-bg min-h-screen flex flex-col items-center px-5 pb-10 relative overflow-x-hidden">
       <style dangerouslySetInnerHTML={{ __html: KEYFRAMES }} />
 
       {/* Filigranes floraux décoratifs */}
@@ -264,6 +264,16 @@ export default function Home() {
 
         {/* ── Créer une partie ── */}
         {etape === 'arbre' && (
+          <div className="w-full flex flex-col items-center gap-3 pb-20">
+            <div className="relative w-full h-[36vh] md:h-[42vh]">
+              <Image
+                src="/illustrations/grand-arbre.png"
+                alt="Le Grand Arbre"
+                fill
+                className="object-contain"
+                style={{ objectPosition: 'bottom center' }}
+              />
+            </div>
           <div className="card-bloom w-[90%] max-w-sm p-6 flex flex-col gap-4">
             <h2 className="font-title text-xl text-bloom-violet-dark text-center">
               {t('creer_partie', lang)}
@@ -284,6 +294,7 @@ export default function Home() {
             >
               {loading ? t('creation_en_cours', lang) : t('creer_btn', lang)}
             </button>
+          </div>
           </div>
         )}
 
