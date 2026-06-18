@@ -3,16 +3,17 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { construireDeck, distribuerRoles, tirerMission, getNbRonces, FLEURS, FLEUR_CONFIGS, CARTE_INFO } from '@/lib/game'
+import { construireDeck, distribuerRoles, tirerMission, getNbRonces, FLEURS, FLEUR_CONFIGS, CARTE_INFO, FLEUR_ILLUS } from '@/lib/game'
 import { t } from '@/lib/translations'
 import { useLang } from '@/app/providers'
 
-/* Illustrations aquarelle disponibles (fond blanc -> mix-blend-mode multiply) */
 const RESOURCE_ILLUS: Record<string, string> = {
+  eau:    '/illustrations/eau.png',
   soleil: '/illustrations/soleil.png',
   vent:   '/illustrations/vent.png',
   terre:  '/illustrations/terre.png',
 }
+
 
 export default function TablePage() {
   const { id } = useParams<{ id: string }>()
@@ -94,7 +95,7 @@ export default function TablePage() {
   const fleurIndex  = game?.fleur_index ?? 0
   const fleur       = FLEURS[fleurIndex]
   const fleurConfig = game ? FLEUR_CONFIGS[fleurIndex]?.[game.nb_joueurs] : undefined
-  const requis      = fleurConfig?.t1
+  const requis      = fleurConfig?.requis
   const votesFleur  = votes.filter(v => v.fleur_index === fleurIndex)
 
   useEffect(() => {
@@ -108,8 +109,7 @@ export default function TablePage() {
 
   async function lancerPartie() {
     if (!game) return
-    const deck = construireDeck(game.nb_joueurs)
-    if (!deck) { alert(`Deck non défini pour ${game.nb_joueurs} joueurs.`); return }
+    const deck = construireDeck()
     setLancement(true)
 
     const roles = distribuerRoles(joueurs.map(j => j.id), game.nb_joueurs)
@@ -319,8 +319,16 @@ export default function TablePage() {
         {/* FLEUR EN COURS */}
         {game?.phase === 'FLEUR_EN_COURS' && fleur && (
           <>
-            <div className="card-bloom p-6 w-full text-center">
-              <h2 className="font-title text-2xl text-bloom-violet-dark">{fleur.nom}</h2>
+            <div className="w-full text-center">
+              {FLEUR_ILLUS[fleurIndex] && (
+                <img
+                  src={FLEUR_ILLUS[fleurIndex].eclos}
+                  alt={fleur.nom}
+                  className="mx-auto mb-3 object-contain"
+                  style={{ width: 300, height: 300 }}
+                />
+              )}
+              <h2 className="font-title text-3xl text-bloom-violet-dark">{fleur.nom}</h2>
               <p className="text-bloom-violet-medium text-sm mt-1">
                 {t('fleur_label', lang)} {fleurIndex + 1} {t('sur_cinq', lang)}
               </p>
@@ -328,41 +336,38 @@ export default function TablePage() {
 
             {requis && (
               <div className="card-bloom p-5 w-full">
-                <h3 className="font-title text-base text-bloom-violet-dark mb-3">{t('ressources_requises', lang)}</h3>
-                <div className="flex flex-wrap gap-2">
+                <h3 className="font-title text-lg text-bloom-violet-dark mb-4">{t('ressources_requises', lang)}</h3>
+                <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(96px, 1fr))' }}>
                   {(Object.entries(requis) as [string, number][])
                     .filter(([, n]) => n > 0)
                     .map(([res, n]) => {
                       const info  = CARTE_INFO[res]
                       const illus = RESOURCE_ILLUS[res]
                       return (
-                        <span
-                          key={res}
-                          className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-sm font-bold text-bloom-black"
-                          style={{ backgroundColor: (info?.couleur ?? '#ccc') + 'bb' }}
-                        >
-                          {/* Icône : illustration aquarelle ou emoji de fallback */}
-                          <span
-                            className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center overflow-hidden"
-                            style={{ backgroundColor: info?.couleur ?? '#ccc' }}
-                          >
-                            {illus && (
+                        <div key={res} className="flex flex-col items-center gap-2">
+                          <div className="w-24 h-24 flex items-center justify-center">
+                            {illus ? (
                               <img
                                 src={illus}
                                 alt={info?.label ?? res}
-                                width={32}
-                                height={32}
+                                width={96}
+                                height={96}
                                 className="w-full h-full object-contain"
                               />
+                            ) : (
+                              <span
+                                className="w-10 h-10 rounded-full"
+                                style={{ backgroundColor: info?.couleur ?? '#ccc' }}
+                              />
                             )}
-                          </span>
-                          {n}× {info?.label}
-                        </span>
+                          </div>
+                          <p className="font-title text-xl text-bloom-black text-center leading-tight">{n}× {info?.label}</p>
+                        </div>
                       )
                     })}
                 </div>
                 {fleurConfig && (
-                  <p className="text-bloom-rose text-sm mt-3">
+                  <p className="text-bloom-rose text-base font-semibold mt-4">
                     {t('max_effets', lang)} {fleurConfig.qn} {t('effets_neg_toleres', lang)}
                   </p>
                 )}
@@ -393,6 +398,16 @@ export default function TablePage() {
                 ? 'border-bloom-green/40'
                 : 'border-bloom-rose/40'
             }`}>
+              {FLEUR_ILLUS[fleurIndex] && (
+                <img
+                  src={game.resultat_fleur === 'fanee'
+                    ? FLEUR_ILLUS[fleurIndex].fane
+                    : FLEUR_ILLUS[fleurIndex].eclos}
+                  alt={fleur?.nom}
+                  className="mx-auto mb-4 object-contain"
+                  style={{ width: 220, height: 220 }}
+                />
+              )}
               <p className="font-title text-3xl text-bloom-violet-dark">
                 {game.resultat_fleur === 'eclose' ? t('fleur_eclose_titre', lang) : t('fleur_fanee_titre', lang)}
               </p>
