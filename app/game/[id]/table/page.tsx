@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { construireDeck, distribuerRoles, tirerMission, getNbRonces, FLEURS, FLEUR_CONFIGS, CARTE_INFO, FLEUR_ILLUS } from '@/lib/game'
+import { construireDeck, distribuerRoles, tirerMission, FLEURS, FLEUR_CONFIGS, CARTE_INFO, FLEUR_ILLUS } from '@/lib/game'
 import { t } from '@/lib/translations'
 import { useLang } from '@/app/providers'
 
@@ -29,7 +29,7 @@ export default function TablePage() {
   const [joueurRevele, setJoueurRevele] = useState<{ joueur: any; role: string } | null>(null)
 
 
-  const transitionFLancee = useRef(false)
+  const transitionLancee = useRef(false)
 
   useEffect(() => {
     async function load() {
@@ -99,11 +99,11 @@ export default function TablePage() {
   const votesFleur  = votes.filter(v => v.fleur_index === fleurIndex)
 
   useEffect(() => {
-    if (game?.phase !== 'ROLE') { transitionFLancee.current = false; return }
-    if (tousConfirmes && !transitionFLancee.current) {
-      transitionFLancee.current = true
+    if (game?.phase !== 'ROLE') { transitionLancee.current = false; return }
+    if (tousConfirmes && !transitionLancee.current) {
+      transitionLancee.current = true
       supabase.from('games').update({ phase: 'FLEUR_EN_COURS', fleur_index: 0 }).eq('id', id)
-        .then(({ error }) => { if (error) { console.error(error); transitionFLancee.current = false } })
+        .then(({ error }) => { if (error) { console.error(error); transitionLancee.current = false } })
     }
   }, [game?.phase, tousConfirmes, id])
 
@@ -138,7 +138,7 @@ export default function TablePage() {
 
     let vainqueur: 'jardiniers' | 'ronces' | null = null
     if (nouvFanees >= 3) vainqueur = 'ronces'
-    else if (nouvEcloses >= 5) vainqueur = 'jardiniers'
+    else if (nouvEcloses >= 3) vainqueur = 'jardiniers'
 
     if (vainqueur) {
       await supabase.from('games').update({
@@ -166,7 +166,7 @@ export default function TablePage() {
     setJoueurRevele(null)
 
     if (nextIndex >= 5) {
-      const vainqueur = (game?.fleurs_ecloses ?? 0) >= 5 ? 'jardiniers'
+      const vainqueur = (game?.fleurs_ecloses ?? 0) >= 3 ? 'jardiniers'
         : (game?.fleurs_fanees ?? 0) >= 3 ? 'ronces'
         : null
       await supabase.from('games').update({ phase: 'FIN', vainqueur }).eq('id', id)
@@ -208,15 +208,24 @@ export default function TablePage() {
   }
 
   async function revelerRole(joueur: any) {
-    if (joueur.role === 'ronce') {
-      await supabase.from('players').update({ elimine: true }).eq('id', joueur.id)
-      const totalRonces = getNbRonces(game?.nb_joueurs ?? 4)
-      const roncesDejaEliminees = joueurs.filter(j => j.role === 'ronce' && j.elimine).length
-      if (roncesDejaEliminees + 1 >= totalRonces) {
-        await supabase.from('games').update({ phase: 'FIN', vainqueur: 'jardiniers' }).eq('id', id)
-        return
-      }
+    await supabase.from('players').update({ elimine: true }).eq('id', joueur.id)
+
+    // React state pas encore mis à jour — on exclut manuellement le joueur éliminé à l'instant
+    const roncesRestantes    = joueurs.filter(j => j.role === 'ronce'      && !j.elimine && j.id !== joueur.id).length
+    const jardiniersRestants = joueurs.filter(j => j.role === 'jardinier'  && !j.elimine && j.id !== joueur.id).length
+
+    // Toutes les Ronces éliminées → Jardiniers gagnent
+    if (joueur.role === 'ronce' && roncesRestantes === 0) {
+      await supabase.from('games').update({ phase: 'FIN', vainqueur: 'jardiniers' }).eq('id', id)
+      return
     }
+
+    // Jardiniers moins nombreux que Ronces restantes → Ronces gagnent
+    if (jardiniersRestants < roncesRestantes) {
+      await supabase.from('games').update({ phase: 'FIN', vainqueur: 'ronces' }).eq('id', id)
+      return
+    }
+
     setJoueurRevele({ joueur, role: joueur.role })
   }
 
