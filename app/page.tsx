@@ -115,8 +115,7 @@ export default function Home() {
 
     if (!player) { console.error(playerError); setLoading(false); return }
 
-    localStorage.setItem('player_id', player.id)
-    localStorage.setItem('game_id', game.id)
+    sessionStorage.setItem(`player_id_${game.id}`, player.id)
     router.push(`/game/${game.id}/table`)
   }
 
@@ -139,8 +138,7 @@ export default function Home() {
 
     if (!player) { setLoading(false); return }
 
-    localStorage.setItem('player_id', player.id)
-    localStorage.setItem('game_id', game.id)
+    sessionStorage.setItem(`player_id_${game.id}`, player.id)
     router.push(`/game/${game.id}/player`)
   }
 
