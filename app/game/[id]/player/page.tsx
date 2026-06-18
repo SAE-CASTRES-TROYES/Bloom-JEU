@@ -1,14 +1,15 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import { FLEURS } from '@/lib/game'
+import { FLEURS, FLEUR_ILLUS } from '@/lib/game'
 import { t } from '@/lib/translations'
 import { useLang } from '@/app/providers'
 
 export default function PlayerPage() {
   const { id } = useParams<{ id: string }>()
   const { lang } = useLang()
+  const router = useRouter()
   const [player, setPlayer]         = useState<any>(null)
   const [game, setGame]             = useState<any>(null)
   const [allPlayers, setAllPlayers] = useState<any[]>([])
@@ -19,7 +20,7 @@ export default function PlayerPage() {
   const [voteSubmitting, setVoteSubmitting]   = useState(false)
 
   useEffect(() => {
-    const playerId = localStorage.getItem('player_id')
+    const playerId = sessionStorage.getItem(`player_id_${id}`)
 
     async function load() {
       if (playerId) {
@@ -117,216 +118,281 @@ export default function PlayerPage() {
     )
   }
 
-  const estRonce  = player.role === 'ronce'
-  const estElimne = !!player.elimine
-  const fleur     = game?.fleur_index !== undefined ? FLEURS[game.fleur_index] : null
-  const suspects  = allPlayers.filter(p => p.id !== player.id && p.role !== 'grand_arbre' && !p.elimine)
-  const joueurs   = allPlayers.filter(p => p.role !== 'grand_arbre' && p.role)
+  const estRonce   = player.role === 'ronce'
+  const estElimne  = !!player.elimine
+  const bgClass    = estRonce ? 'bloom-bg-ronce' : 'bloom-bg'
+
+  if (estElimne) {
+    return (
+      <main className={`h-dvh ${bgClass} flex flex-col items-center justify-center px-8 text-center`}>
+        <div className="w-full max-w-xs flex flex-col items-center gap-4">
+          <p className="font-title text-3xl text-bloom-violet-dark leading-tight">
+            {t('elimine_modal_titre', lang)}
+          </p>
+          <p className="text-base text-bloom-violet-medium">
+            {t('elimine_modal_desc', lang)}
+          </p>
+          <button
+            onClick={() => router.push('/')}
+            className="btn-rose w-full mt-4"
+          >
+            {t('retour_accueil_btn', lang)}
+          </button>
+        </div>
+      </main>
+    )
+  }
+
+  const fleurIndex     = game?.fleur_index ?? 0
+  const fleur          = game?.fleur_index !== undefined ? FLEURS[fleurIndex] : null
+  const suspects       = allPlayers.filter(p => p.id !== player.id && p.role !== 'grand_arbre' && !p.elimine)
+  const joueurs        = allPlayers.filter(p => p.role !== 'grand_arbre' && p.role)
+  const isFleurEnCours = game?.phase === 'FLEUR_EN_COURS'
+
+  const roleBadge = player.role ? (
+    <span className={`inline-block mt-2 text-xs font-bold px-3 py-0.5 rounded-full ${
+      estRonce ? 'bg-bloom-rose text-white' : 'bg-bloom-green text-white'
+    }`}>
+      {estRonce ? t('role_ronce', lang) : t('role_jardinier', lang)}
+    </span>
+  ) : null
 
   return (
-    <main className={`min-h-screen ${estRonce ? 'bloom-bg-ronce' : 'bloom-bg'} flex flex-col items-center px-5`}>
+    <main className={`h-dvh overflow-hidden ${bgClass} flex flex-col items-center px-5`}>
 
-      {/* En-tête : pseudo + badge rôle */}
-      <div className="pt-8 pb-3 text-center">
-        <h1 className="font-title text-2xl text-bloom-violet-dark truncate max-w-[280px] sm:max-w-none">{player.pseudo}</h1>
-        {player.role && (
-          <span className={`inline-block mt-1 text-xs font-bold px-3 py-0.5 rounded-full ${
-            estRonce
-              ? 'bg-bloom-rose text-white'
-              : 'bg-bloom-green text-white'
-          }`}>
-            {estRonce ? t('role_ronce', lang) : t('role_jardinier', lang)}
-          </span>
-        )}
-      </div>
+      {/* Bouton accueil fixe */}
+      <button
+        onClick={() => router.push('/')}
+        className="fixed top-4 left-4 z-50 flex items-center justify-center w-12 h-12 rounded-full bg-bloom-violet-pale text-bloom-violet-dark shadow-sm"
+        aria-label="Accueil"
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <path d="M3 12L12 3l9 9"/><path d="M5 10v9h5v-5h4v5h5v-9"/>
+        </svg>
+      </button>
 
-      {/* Contenu de phase — centré dans l'espace restant */}
-      <div className="flex-1 w-full max-w-sm flex flex-col items-center justify-center gap-5 pb-8">
+      {/* ── FLEUR EN COURS : header fixe + layout vh ── */}
+      {isFleurEnCours && (
+        <>
+        <div className="w-full max-w-sm pt-4 pb-2 text-center shrink-0">
+          <h1 className="font-title text-4xl font-bold text-bloom-violet-dark leading-tight break-words">
+            {player.pseudo}
+          </h1>
+          {roleBadge}
+        </div>
+        </>
+      )}
+      {isFleurEnCours && (
+        <div className="flex-1 min-h-0 w-full max-w-sm flex flex-col">
 
-        {/* LOBBY */}
-        {game?.phase === 'LOBBY' && (
-          <div className="card-bloom p-6 w-full text-center">
-            <p className="font-title text-xl text-bloom-violet-dark">{t('en_attente_ga', lang)}</p>
-            <p className="text-base text-bloom-violet-medium mt-2">{t('partie_bientot', lang)}</p>
-          </div>
-        )}
-
-        {/* ROLE */}
-        {game?.phase === 'ROLE' && player.role && (
-          <div className={`w-full p-6 text-center ${estRonce ? 'card-ronce' : 'card-jardinier'}`}>
-            <p className="font-title text-3xl text-bloom-black mb-3">
-              {estRonce ? t('role_ronce', lang) : t('role_jardinier', lang)}
-            </p>
-            <p className="text-base text-bloom-gray-dark">
-              {estRonce ? t('role_ronce_desc', lang) : t('role_jardinier_desc', lang)}
-            </p>
-            {player.mission && (
-              <div className={`rounded-xl p-4 mt-5 text-left ${estRonce ? 'bg-bloom-cream' : 'bg-bloom-violet-pale'}`}>
-                <p className="font-title text-base text-bloom-black mb-1">{t('mission_secrete', lang)}</p>
-                <p className="text-base text-bloom-gray-dark">{player.mission.texte}</p>
-              </div>
+          {/* Zone illustration : ~38vh */}
+          <div
+            className="shrink-0 flex flex-col items-center justify-end"
+            style={{ height: '38vh' }}
+          >
+            {fleur && FLEUR_ILLUS[fleurIndex] && (
+              <img
+                src={FLEUR_ILLUS[fleurIndex].eclos}
+                alt={fleur.nom}
+                className="object-contain"
+                style={{ maxHeight: 'calc(38vh - 3.5rem)', maxWidth: '100%', width: 'auto' }}
+              />
             )}
-            <button
-              onClick={confirmerRole}
-              disabled={player.mission_accomplie || confirmation}
-              className={`mt-5 w-full ${estRonce ? 'btn-rose' : 'btn-green'}`}
-            >
-              {player.mission_accomplie ? t('compris', lang) : t('confirmer_role_btn', lang)}
-            </button>
-          </div>
-        )}
-
-        {/* FLEUR EN COURS */}
-        {game?.phase === 'FLEUR_EN_COURS' && (
-          <>
             {fleur && (
-              <div className="card-bloom p-5 w-full text-center">
-                <p className="font-title text-xl text-bloom-violet-dark">{fleur.nom}</p>
-                <p className="text-sm text-bloom-violet-medium mt-1">
-                  {t('fleur_label', lang)} {(game?.fleur_index ?? 0) + 1} {t('sur_cinq', lang)}
+              <>
+                <p className="font-title text-xl text-bloom-violet-dark mt-1 leading-tight">{fleur.nom}</p>
+                <p className="text-xs text-bloom-violet-medium mt-0.5">
+                  {t('fleur_label', lang)} {fleurIndex + 1} {t('sur_cinq', lang)}
                 </p>
-              </div>
+              </>
             )}
+          </div>
+
+          {/* Zone mission + boutons : reste de l'espace, défilable si besoin */}
+          <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-3 pt-3 pb-24">
 
             {player.mission && (
-              <div className={`w-full p-5 ${estRonce ? 'card-ronce' : 'card-bloom'}`}>
-                <p className="font-title text-base text-bloom-black mb-1">{t('ta_mission', lang)}</p>
-                <p className="text-base text-bloom-gray-dark">{player.mission.texte}</p>
+              <div className={`w-full p-4 ${estRonce ? 'card-ronce' : 'card-bloom'}`}>
+                <p className="font-title text-sm text-bloom-black mb-1">{t('ta_mission', lang)}</p>
+                <p className="text-sm text-bloom-gray-dark">{player.mission.texte}</p>
               </div>
             )}
 
             {estElimne ? (
-              <div className="card-ronce p-5 w-full text-center">
-                <p className="text-base font-bold text-bloom-gray-dark">{t('elimine_mission', lang)}</p>
+              <div className="card-ronce p-4 w-full text-center">
+                <p className="text-sm font-bold text-bloom-gray-dark">{t('elimine_mission', lang)}</p>
               </div>
             ) : !missionSignalee ? (
               <div className="flex flex-col gap-3 w-full">
-                <button
-                  onClick={() => signalerMission('reussi')}
-                  className="btn-green w-full min-h-[68px] text-base"
-                >
+                <button onClick={() => signalerMission('reussi')} className="btn-green w-full min-h-[56px] text-base">
                   {t('mission_reussie_btn', lang)}
                 </button>
-                <button
-                  onClick={() => signalerMission('echec')}
-                  className="btn-rose w-full min-h-[68px] text-base"
-                >
+                <button onClick={() => signalerMission('echec')} className="btn-rose w-full min-h-[56px] text-base">
                   {t('mission_echec_btn', lang)}
                 </button>
               </div>
             ) : (
-              <div className="card-bloom p-5 w-full text-center">
-                <p className="font-title text-lg text-bloom-violet-dark">{t('reponse_enregistree', lang)}</p>
+              <div className="card-bloom p-4 w-full text-center">
+                <p className="font-title text-base text-bloom-violet-dark">{t('reponse_enregistree', lang)}</p>
                 <p className="text-sm text-bloom-violet-medium mt-1">{t('en_attente_resultat', lang)}</p>
               </div>
             )}
-          </>
-        )}
 
-        {/* CONSEQUENCES */}
-        {game?.phase === 'CONSEQUENCES' && (
-          <div className="card-bloom p-6 w-full text-center">
-            <p className="font-title text-xl text-bloom-violet-dark">{t('ga_prepare', lang)}</p>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* VOTE */}
-        {game?.phase === 'VOTE' && (
-          <>
-            <div className="card-bloom p-5 w-full text-center">
-              <p className="font-title text-xl text-bloom-violet-dark">{t('phase_vote', lang)}</p>
-              <p className="text-sm text-bloom-violet-medium mt-1">{t('designe_suspect', lang)}</p>
+      {/* ── Toutes les autres phases : centré verticalement ── */}
+      {!isFleurEnCours && (
+        <div className="flex-1 min-h-0 overflow-y-auto w-full max-w-sm">
+          <div className="min-h-full flex flex-col items-center justify-center gap-4 py-8 pb-24">
+
+            {/* Pseudo + badge, intégrés dans le bloc centré */}
+            <div className="text-center">
+              <h1 className="font-title text-4xl font-bold text-bloom-violet-dark leading-tight break-words">
+                {player.pseudo}
+              </h1>
+              {roleBadge}
             </div>
 
-            {estElimne ? (
-              <div className="card-ronce p-5 w-full text-center">
-                <p className="text-base font-bold text-bloom-gray-dark">{t('elimine_vote', lang)}</p>
-              </div>
-            ) : !game?.vote_lance ? (
-              <div className="card-bloom p-5 w-full text-center">
-                <p className="font-title text-lg text-bloom-violet-dark">{t('ga_lance_vote', lang)}</p>
-              </div>
-            ) : !aVote ? (
-              <div className="flex flex-col gap-3 w-full">
-                <p className="text-sm text-bloom-violet-medium text-center">{t('tap_suspect', lang)}</p>
-                {suspects.map(s => (
-                  <button
-                    key={s.id}
-                    onClick={() => soumettreVote(s.id)}
-                    disabled={voteSubmitting}
-                    className="btn-ghost w-full min-h-[64px] justify-start px-5"
-                  >
-                    <span className="truncate">{s.pseudo}</span>
-                  </button>
-                ))}
-              </div>
-            ) : (
+            {/* LOBBY */}
+            {game?.phase === 'LOBBY' && (
               <div className="card-bloom p-6 w-full text-center">
-                <p className="font-title text-lg text-bloom-violet-dark">{t('vote_enregistre', lang)}</p>
-                <p className="text-sm text-bloom-violet-medium mt-1">{t('en_attente_autres', lang)}</p>
+                <p className="font-title text-xl text-bloom-violet-dark">{t('en_attente_ga', lang)}</p>
+                <p className="text-base text-bloom-violet-medium mt-2">{t('partie_bientot', lang)}</p>
               </div>
             )}
-          </>
-        )}
 
-        {/* FIN */}
-        {game?.phase === 'FIN' && (
-          <>
-            <div className={`w-full p-6 text-center rounded-2xl ${
-              game.vainqueur === 'jardiniers' ? 'card-jardinier' : 'card-ronce'
-            }`}>
-              <p className="font-title text-2xl text-bloom-black">
-                {game.vainqueur === 'jardiniers' ? t('victoire_jardiniers', lang) : t('victoire_ronces', lang)}
-              </p>
-              <p className="text-bloom-gray-dark text-sm mt-2">
-                {game.vainqueur === 'jardiniers' ? t('sous_titre_jardiniers', lang) : t('sous_titre_ronces', lang)}
-              </p>
-            </div>
+            {/* ROLE */}
+            {game?.phase === 'ROLE' && player.role && (
+              <div className={`w-full p-6 text-center ${estRonce ? 'card-ronce' : 'card-jardinier'}`}>
+                <p className="font-title text-3xl text-bloom-black mb-3">
+                  {estRonce ? t('role_ronce', lang) : t('role_jardinier', lang)}
+                </p>
+                <p className="text-base text-bloom-gray-dark">
+                  {estRonce ? t('role_ronce_desc', lang) : t('role_jardinier_desc', lang)}
+                </p>
+                {player.mission && (
+                  <div className={`rounded-xl p-4 mt-5 text-left ${estRonce ? 'bg-bloom-cream' : 'bg-bloom-violet-pale'}`}>
+                    <p className="font-title text-base text-bloom-black mb-1">{t('mission_secrete', lang)}</p>
+                    <p className="text-base text-bloom-gray-dark">{player.mission.texte}</p>
+                  </div>
+                )}
+                <button
+                  onClick={confirmerRole}
+                  disabled={player.mission_accomplie || confirmation}
+                  className={`mt-5 w-full ${estRonce ? 'btn-rose' : 'btn-green'}`}
+                >
+                  {player.mission_accomplie ? t('compris', lang) : t('confirmer_role_btn', lang)}
+                </button>
+              </div>
+            )}
 
-            <div className={`w-full p-4 text-center rounded-2xl ${estRonce ? 'card-ronce' : 'card-jardinier'}`}>
-              <p className="font-title text-base text-bloom-black">
-                {t('tu_etais', lang)} {estRonce ? t('role_ronce', lang) : t('role_jardinier', lang)}
-              </p>
-            </div>
+            {/* CONSEQUENCES */}
+            {game?.phase === 'CONSEQUENCES' && (
+              <div className="card-bloom p-6 w-full text-center">
+                <p className="font-title text-xl text-bloom-violet-dark">{t('ga_prepare', lang)}</p>
+              </div>
+            )}
 
-            {joueurs.length > 0 && (
-              <div className="card-bloom p-4 w-full">
-                <h3 className="font-title text-base text-bloom-violet-dark mb-3">{t('fin_roles_reveles', lang)}</h3>
-                <div className="flex flex-col gap-2">
-                  {joueurs.map(j => (
-                    <div
-                      key={j.id}
-                      className={`rounded-xl px-3 py-2.5 flex items-center justify-between ${
-                        j.role === 'ronce' ? 'bg-bloom-rose-light' : 'bg-bloom-green-light'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full shrink-0 ${
-                          j.role === 'ronce' ? 'bg-bloom-rose' : 'bg-bloom-green'
-                        }`} />
-                        <span className="text-sm font-bold text-bloom-black">{j.pseudo}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs text-bloom-gray-dark">
-                          {j.role === 'ronce' ? t('role_ronce', lang) : t('role_jardinier', lang)}
-                        </span>
-                        {j.elimine && (
-                          <span className="text-xs bg-bloom-rose text-white px-1.5 py-0.5 rounded-full whitespace-nowrap">
-                            {t('badge_demasque', lang)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+            {/* VOTE */}
+            {game?.phase === 'VOTE' && (
+              <>
+                <div className="card-bloom p-5 w-full text-center">
+                  <p className="font-title text-xl text-bloom-violet-dark">{t('phase_vote', lang)}</p>
+                  <p className="text-sm text-bloom-violet-medium mt-1">{t('designe_suspect', lang)}</p>
                 </div>
-              </div>
+
+                {estElimne ? (
+                  <div className="card-ronce p-5 w-full text-center">
+                    <p className="text-base font-bold text-bloom-gray-dark">{t('elimine_vote', lang)}</p>
+                  </div>
+                ) : !game?.vote_lance ? (
+                  <div className="card-bloom p-5 w-full text-center">
+                    <p className="font-title text-lg text-bloom-violet-dark">{t('ga_lance_vote', lang)}</p>
+                  </div>
+                ) : !aVote ? (
+                  <div className="flex flex-col gap-3 w-full">
+                    <p className="text-sm text-bloom-violet-medium text-center">{t('tap_suspect', lang)}</p>
+                    {suspects.map(s => (
+                      <button
+                        key={s.id}
+                        onClick={() => soumettreVote(s.id)}
+                        disabled={voteSubmitting}
+                        className="btn-ghost w-full min-h-[64px] justify-start px-5"
+                      >
+                        <span className="truncate">{s.pseudo}</span>
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="card-bloom p-6 w-full text-center">
+                    <p className="font-title text-lg text-bloom-violet-dark">{t('vote_enregistre', lang)}</p>
+                    <p className="text-sm text-bloom-violet-medium mt-1">{t('en_attente_autres', lang)}</p>
+                  </div>
+                )}
+              </>
             )}
 
-            <p className="text-center text-sm text-bloom-violet-medium">{t('fin_merci', lang)}</p>
-          </>
-        )}
+            {/* FIN */}
+            {game?.phase === 'FIN' && (
+              <>
+                <div className={`w-full p-6 text-center rounded-2xl ${
+                  game.vainqueur === 'jardiniers' ? 'card-jardinier' : 'card-ronce'
+                }`}>
+                  <p className="font-title text-2xl text-bloom-black">
+                    {game.vainqueur === 'jardiniers' ? t('victoire_jardiniers', lang) : t('victoire_ronces', lang)}
+                  </p>
+                  <p className="text-bloom-gray-dark text-sm mt-2">
+                    {game.vainqueur === 'jardiniers' ? t('sous_titre_jardiniers', lang) : t('sous_titre_ronces', lang)}
+                  </p>
+                </div>
 
-      </div>
+                <div className={`w-full p-4 text-center rounded-2xl ${estRonce ? 'card-ronce' : 'card-jardinier'}`}>
+                  <p className="font-title text-base text-bloom-black">
+                    {t('tu_etais', lang)} {estRonce ? t('role_ronce', lang) : t('role_jardinier', lang)}
+                  </p>
+                </div>
+
+                {joueurs.length > 0 && (
+                  <div className="card-bloom p-4 w-full">
+                    <h3 className="font-title text-base text-bloom-violet-dark mb-3">{t('fin_roles_reveles', lang)}</h3>
+                    <div className="flex flex-col gap-2">
+                      {joueurs.map(j => (
+                        <div
+                          key={j.id}
+                          className={`rounded-xl px-3 py-2.5 flex items-center justify-between ${
+                            j.role === 'ronce' ? 'bg-bloom-rose-light' : 'bg-bloom-green-light'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className={`w-2 h-2 rounded-full shrink-0 ${j.role === 'ronce' ? 'bg-bloom-rose' : 'bg-bloom-green'}`} />
+                            <span className="text-sm font-bold text-bloom-black">{j.pseudo}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs text-bloom-gray-dark">
+                              {j.role === 'ronce' ? t('role_ronce', lang) : t('role_jardinier', lang)}
+                            </span>
+                            {j.elimine && (
+                              <span className="text-xs bg-bloom-rose text-white px-1.5 py-0.5 rounded-full whitespace-nowrap">
+                                {t('badge_demasque', lang)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <p className="text-center text-sm text-bloom-violet-medium">{t('fin_merci', lang)}</p>
+              </>
+            )}
+
+          </div>
+        </div>
+      )}
+
     </main>
   )
 }
