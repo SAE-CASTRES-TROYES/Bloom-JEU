@@ -9,7 +9,7 @@ const translations = {
 
     // Page d'accueil
     retour:               '← Retour',
-    btn_arbre:            'Cet appareil est le Grand Arbre',
+    btn_arbre:            'test',
     btn_joueur:           'Cet appareil est un joueur',
     creer_partie:         'Créer une partie',
     creation_en_cours:    'Création...',
