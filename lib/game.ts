@@ -124,8 +124,10 @@ export const FLEUR_CONFIGS: Record<number, Record<number, FleurConfig>> = {
 
 export const FLEUR_ILLUS: Record<number, { eclos: string; fane: string }> = {
   0: { eclos: '/illustrations/fleurs/lavande.png',  fane: '/illustrations/fleurs/lavande-fanee.png' },
+  1: { eclos: '/illustrations/fleurs/tulipe.png',   fane: '/illustrations/fleurs/tulipe-fane.png' },
   2: { eclos: '/illustrations/fleurs/mimosa.png',   fane: '/illustrations/fleurs/mimosa-fane.png' },
   3: { eclos: '/illustrations/fleurs/lys.png',      fane: '/illustrations/fleurs/lys-fane.png' },
+  4: { eclos: '/illustrations/fleurs/dahlia.webp',  fane: '/illustrations/fleurs/dahlia-fane.webp' },
 }
 
 // ─── Cartes ────────────────────────────────────────────────────────────────

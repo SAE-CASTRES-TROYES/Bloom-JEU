@@ -74,6 +74,27 @@ export default function PlayerPage() {
     setAVote(false)
   }, [game?.fleur_index])
 
+  // Fin de partie : on enregistre le résultat pour le compte connecté (une seule
+  // fois par partie). record_game_result n'agit que si auth.uid() existe → un
+  // invité non connecté est ignoré côté serveur. Si le RPC n'existe pas encore
+  // (migration 003 non appliquée), on log sans casser la partie.
+  useEffect(() => {
+    if (game?.phase !== 'FIN' || !game?.vainqueur) return
+    if (player?.role !== 'ronce' && player?.role !== 'jardinier') return
+    const flag = `stats_recorded_${id}`
+    if (sessionStorage.getItem(flag)) return
+    sessionStorage.setItem(flag, '1')
+    const won =
+      (game.vainqueur === 'jardiniers' && player.role === 'jardinier') ||
+      (game.vainqueur === 'ronces' && player.role === 'ronce')
+    supabase.rpc('record_game_result', { p_won: won }).then(({ error }) => {
+      if (error) {
+        console.warn('record_game_result:', error.message)
+        sessionStorage.removeItem(flag)
+      }
+    })
+  }, [game?.phase, game?.vainqueur, player?.role, id])
+
   async function confirmerRole() {
     if (!player) return
     setConfirmation(true)

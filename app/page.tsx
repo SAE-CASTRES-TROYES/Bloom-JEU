@@ -64,6 +64,9 @@ export default function Home() {
   const { lang } = useLang()
   const [etape, setEtape] = useState<Etape>('choix')
   const [pseudo, setPseudo] = useState('')
+  // Compte connecté (session partagée avec le site WEB via cookies). null = invité.
+  const [user, setUser] = useState<{ id: string } | null>(null)
+  const [pseudoVerrouille, setPseudoVerrouille] = useState(false)
   const [code, setCode] = useState('')
   const [nbJoueurs, setNbJoueurs] = useState(4)
   const [loading, setLoading] = useState(false)
@@ -75,6 +78,26 @@ export default function Home() {
     const params = new URLSearchParams(window.location.search)
     const role = params.get('role')
     if (role === 'arbre' || role === 'joueur') setEtape(role)
+  }, [])
+
+  // Si l'utilisateur est connecté sur le site WEB, on récupère son compte et on
+  // préremplit (et verrouille) son pseudo. Reste optionnel : on peut jouer en invité.
+  useEffect(() => {
+    supabase.auth.getUser().then(async ({ data }) => {
+      const u = data.user
+      if (!u) return
+      setUser({ id: u.id })
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('pseudo')
+        .eq('id', u.id)
+        .single()
+      const nom = profile?.pseudo?.trim() || u.email?.split('@')[0] || ''
+      if (nom) {
+        setPseudo(nom)
+        setPseudoVerrouille(true)
+      }
+    })
   }, [])
 
   function handleChoice(choice: 'arbre' | 'joueur') {
@@ -131,11 +154,25 @@ export default function Home() {
 
     if (!game) { alert(t('partie_introuvable', lang)); setLoading(false); return }
 
-    const { data: player } = await supabase
-      .from('players')
-      .insert({ game_id: game.id, pseudo })
-      .select()
-      .single()
+    // On rattache le joueur à son compte si connecté. Fallback sans user_id si
+    // la colonne n'existe pas encore (migration 003 non appliquée) → jeu jouable.
+    let player = null
+    if (user?.id) {
+      const res = await supabase
+        .from('players')
+        .insert({ game_id: game.id, pseudo, user_id: user.id })
+        .select()
+        .single()
+      player = res.data
+    }
+    if (!player) {
+      const res = await supabase
+        .from('players')
+        .insert({ game_id: game.id, pseudo })
+        .select()
+        .single()
+      player = res.data
+    }
 
     if (!player) { setLoading(false); return }
 
@@ -264,11 +301,17 @@ export default function Home() {
               maxLength={6}
             />
             <input
-              className="min-h-[52px] border-2 border-bloom-violet-light rounded-xl px-4 text-base bg-white/80 focus:outline-none focus:border-bloom-violet-dark"
+              className="min-h-[52px] border-2 border-bloom-violet-light rounded-xl px-4 text-base bg-white/80 focus:outline-none focus:border-bloom-violet-dark read-only:opacity-70 read-only:cursor-not-allowed"
               placeholder={t('placeholder_pseudo', lang)}
               value={pseudo}
               onChange={e => setPseudo(e.target.value)}
+              readOnly={pseudoVerrouille}
             />
+            {pseudoVerrouille && (
+              <p className="font-body text-xs text-bloom-violet-medium -mt-2">
+                {t('connecte_en_tant_que', lang)} <span className="font-semibold">{pseudo}</span>
+              </p>
+            )}
             <button
               onClick={rejoindrePartie}
               disabled={loading || !pseudo || !code}

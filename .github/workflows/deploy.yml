@@ -1,0 +1,54 @@
+name: Deploy JEU to VPS (/jeu)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1) Synchronise les SOURCES vers le VPS (le build se fait sur le VPS).
+      #    burnett01/rsync-deployments n'a PAS d'input `exclude` (warning + ignoré) :
+      #    on passe donc les excludes via `switches`. On exclut .env* pour ne pas
+      #    écraser le fichier d'env du VPS, ainsi que node_modules/.next/.git.
+      - name: Sync sources to VPS
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: >-
+            -avz --delete
+            --exclude='.git'
+            --exclude='.github'
+            --exclude='node_modules'
+            --exclude='.next'
+            --exclude='.env*'
+          path: ./
+          remote_path: /var/www/bloom-jeu/
+          remote_host: ${{ secrets.VPS_HOST }}
+          remote_user: ${{ secrets.VPS_USER }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # 2) Écrit l'env, installe (COMPLET — Tailwind/PostCSS sont en devDeps),
+      #    build avec basePath /jeu (NEXT_BASE_PATH via .env.production), restart PM2.
+      - name: Install, build & restart on VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd /var/www/bloom-jeu
+            cat > .env.local << 'ENVEOF'
+            NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+            NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+            ENVEOF
+            npm install
+            npm run build
+            pm2 restart bloom-jeu --update-env || pm2 start "npm run start -- --port 3001" --name bloom-jeu
+            pm2 save
