@@ -9,6 +9,7 @@ const translations = {
 
     // Page d'accueil
     retour:               '← Retour',
+    retour_site:          '← Retour au site Bloom',
     intro_pitch:          "Dans le Jardin Légendaire, cinq fleurs ancestrales attendent d'être éveillées par les Jardiniers. Mais parmi eux se cachent des Ronces — des saboteurs qui corrompent les ressources. Pour les démasquer, les Jardiniers devront coopérer, observer et se méfier des apparences. Au centre de la table, le Grand Arbre guide la partie. Dans ce jardin, la confiance est la ressource la plus précieuse…",
     btn_arbre:            'Cet appareil est le Grand Arbre',
     btn_joueur:           'Cet appareil est un joueur',
@@ -103,6 +104,8 @@ const translations = {
     accomplie_s:          'accomplie(s)',
     sur:                  'sur',
     modificateurs:        "Les modificateurs s'appliquent à la fleur suivante",
+    mod_actifs_titre:     'Modificateurs actifs — à appliquer cette fleur',
+    modifie:              '(modifié)',
     continuer:            'Continuer →',
     continuer_vote:       'Continuer (vote) →',
 
@@ -147,6 +150,7 @@ const translations = {
 
   en: {
     retour:               '← Back',
+    retour_site:          '← Back to the Bloom website',
     intro_pitch:          "In the Legendary Garden, five ancestral flowers await awakening by the Gardeners. But among them hide the Thorns — saboteurs corrupting the resources. To unmask them, the Gardeners must cooperate, observe, and question appearances. At the center of the table, the Grand Tree guides the game. In this garden, trust is the most precious resource…",
     btn_arbre:            'This device is the Grand Tree',
     btn_joueur:           'This device is a player',
@@ -234,6 +238,8 @@ const translations = {
     accomplie_s:          'accomplished',
     sur:                  'out of',
     modificateurs:        'Modifiers apply to the next flower',
+    mod_actifs_titre:     'Active modifiers — apply to this flower',
+    modifie:              '(modified)',
     continuer:            'Continue →',
     continuer_vote:       'Continue (vote) →',
 
@@ -276,6 +282,7 @@ const translations = {
 
   es: {
     retour:               '← Volver',
+    retour_site:          '← Volver al sitio Bloom',
     intro_pitch:          "En el Jardín Legendario, cinco flores ancestrales esperan ser despertadas por los Jardineros. Pero entre ellos se esconden las Zarzas — saboteadores que corrompen los recursos. Para desenmascarlos, los Jardineros deberán cooperar, observar y desconfiar de las apariencias. En el centro de la mesa, el Gran Árbol guía la partida. En este jardín, la confianza es el recurso más valioso…",
     btn_arbre:            'Este dispositivo es el Gran Árbol',
     btn_joueur:           'Este dispositivo es un jugador',
@@ -363,6 +370,8 @@ const translations = {
     accomplie_s:          'lograda(s)',
     sur:                  'de',
     modificateurs:        'Los modificadores se aplican a la siguiente flor',
+    mod_actifs_titre:     'Modificadores activos — aplicar a esta flor',
+    modifie:              '(modificado)',
     continuer:            'Continuar →',
     continuer_vote:       'Continuar (voto) →',
 

@@ -22,51 +22,93 @@ export const DECK_COMPOSITION: Record<string, number> = {
 
 // ─── Missions ──────────────────────────────────────────────────────────────
 
-export const JARDINIER_MISSIONS = [
+// `effet` = traduction mécanique du modificateur, reporté à la fleur suivante.
+// type 'quota'  → ajuste le quota d'effets négatifs tolérés (qn) de `delta`.
+// type 'requis' → ajuste le total de ressources requises de `delta`.
+// les autres types sont des consignes affichées au Grand Arbre (appliquées à la main).
+export type ModEffet =
+  | { type: 'quota'; delta: number }
+  | { type: 'requis'; delta: number }
+  | { type: 'tolerance'; delta: number }
+  | { type: 'retire_negatif' }
+  | { type: 'rejoue' }
+  | { type: 'neutralise' }
+  | { type: 'vote_off' }
+
+export type Mission = { id: string; texte: string; modificateur: string; effet: ModEffet }
+export type ModificateurActif = { role: 'jardinier' | 'ronce'; texte: string; effet: ModEffet }
+
+export const JARDINIER_MISSIONS: Mission[] = [
   {
     id: 'silence_sacre',
     texte: "Ne prononce aucun mot pendant toute la phase de discussion de cette fleur.",
     modificateur: "Fleur suivante : elle accepte une ressource en plus ou en moins sans se faner (appliqué au résultat final, après le Vent Mauvais).",
+    effet: { type: 'tolerance', delta: 1 },
   },
   {
     id: 'premier_bourgeon',
     texte: "Sois le premier joueur à poser ta carte de contribution lors du premier tour de cette fleur.",
     modificateur: "Fleur suivante : le Grand Arbre retire un effet négatif actif avant la révélation du premier tour.",
+    effet: { type: 'retire_negatif' },
   },
   {
     id: 'instinct_botanique',
     texte: "Joue exactement la ressource la plus demandée par la fleur active pendant ce tour.",
     modificateur: "Fleur suivante : le quota d'effets négatifs tolérés est augmenté de 1.",
+    effet: { type: 'quota', delta: 1 },
   },
   {
     id: 'gardien_fleurs',
     texte: "Ne parle pas de tes cartes pendant la discussion, mais pose ta contribution sans hésiter.",
     modificateur: "Fleur suivante : si elle manque ou dépasse d'exactement une ressource au premier tour, celui-ci est rejoué sans débat.",
+    effet: { type: 'rejoue' },
   },
 ]
 
-export const RONCE_MISSIONS = [
+export const RONCE_MISSIONS: Mission[] = [
   {
     id: 'racines_envahissantes',
     texte: "Convaincs au moins un joueur de jouer la même ressource que celle que tu annonces, créant un surplus.",
     modificateur: "Fleur suivante : le quota exact de ressources requis est réduit de 1.",
+    effet: { type: 'requis', delta: -1 },
   },
   {
     id: 'penurie',
     texte: "Pendant la discussion, affirme que tu ne possèdes pas la ressource requise alors que tu l'as.",
     modificateur: "Fleur suivante : une ressource révélée au premier tour sera neutralisée au hasard.",
+    effet: { type: 'neutralise' },
   },
   {
     id: 'epine_cachee',
     texte: "Joue au moins une carte à effet négatif pendant cette fleur.",
     modificateur: "Fleur suivante : le quota d'effets négatifs tolérés est réduit de 1.",
+    effet: { type: 'quota', delta: -1 },
   },
   {
     id: 'innocence_trompeuse',
     texte: "Ne joue aucune carte négative durant toute cette fleur.",
     modificateur: "Fleur suivante : la phase de vote d'accusation peut être désactivée après la prochaine fleur fanée.",
+    effet: { type: 'vote_off' },
   },
 ]
+
+// Calcule l'ajustement à afficher au Grand Arbre pour la fleur courante,
+// à partir des modificateurs reportés (missions réussies de la fleur précédente).
+export function ajusterFleur(qnBase: number, requisTotalBase: number, mods: ModificateurActif[]) {
+  let qn = qnBase
+  let requisTotal = requisTotalBase
+  for (const m of mods) {
+    if (m.effet.type === 'quota')  qn += m.effet.delta
+    if (m.effet.type === 'requis') requisTotal += m.effet.delta
+  }
+  return {
+    qn: Math.max(0, qn),
+    requisTotal: Math.max(0, requisTotal),
+    qnModifie: qn !== qnBase,
+    requisModifie: requisTotal !== requisTotalBase,
+    voteDesactive: mods.some(m => m.effet.type === 'vote_off'),
+  }
+}
 
 function shuffle<T>(array: T[]): T[] {
   const result = [...array]

@@ -289,6 +289,14 @@ export default function Home() {
               >
                 {t('rules_btn', lang)}
               </button>
+
+              {/* Retour au site principal (href absolu → racine du domaine, hors basePath /jeu) */}
+              <a
+                href="/"
+                className="w-full text-center font-body text-sm text-bloom-violet-medium hover:text-bloom-violet-dark transition-colors mt-1"
+              >
+                {t('retour_site', lang)}
+              </a>
             </div>
           </div>
         )}

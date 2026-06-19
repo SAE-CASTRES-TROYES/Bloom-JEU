@@ -4,7 +4,8 @@ import { useParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
-import { construireDeck, distribuerRoles, tirerMission, FLEURS, FLEUR_CONFIGS, CARTE_INFO, FLEUR_ILLUS } from '@/lib/game'
+import { construireDeck, distribuerRoles, tirerMission, ajusterFleur, FLEURS, FLEUR_CONFIGS, CARTE_INFO, FLEUR_ILLUS } from '@/lib/game'
+import type { ModificateurActif } from '@/lib/game'
 import { t } from '@/lib/translations'
 import { useLang } from '@/app/providers'
 
@@ -99,6 +100,18 @@ export default function TablePage() {
   const requis      = fleurConfig?.requis
   const votesFleur  = votes.filter(v => v.fleur_index === fleurIndex)
 
+  // Modificateurs reportés depuis la fleur précédente (missions réussies).
+  const modsActifs: ModificateurActif[] = (game?.modificateurs_actifs as ModificateurActif[] | undefined) ?? []
+  const requisTotalBase = requis ? (Object.values(requis) as number[]).reduce((a, b) => a + b, 0) : 0
+  const ajust = ajusterFleur(fleurConfig?.qn ?? 0, requisTotalBase, modsActifs)
+
+  // Modificateurs qui s'appliqueront à la PROCHAINE fleur (missions réussies de la fleur courante).
+  function collecterModificateurs(): ModificateurActif[] {
+    return joueurActifs
+      .filter(j => j.mission_resultat === 'reussi' && j.mission?.effet && (j.role === 'jardinier' || j.role === 'ronce'))
+      .map(j => ({ role: j.role, texte: j.mission.modificateur, effet: j.mission.effet }))
+  }
+
   useEffect(() => {
     if (game?.phase !== 'ROLE') { transitionLancee.current = false; return }
     if (tousConfirmes && !transitionLancee.current) {
@@ -160,6 +173,10 @@ export default function TablePage() {
   }
 
   async function avancerVersFleur(nextIndex: number) {
+    // Reporte les modificateurs des missions RÉUSSIES vers la prochaine fleur
+    // (avant le reset des missions, sinon mission_resultat est effacé).
+    const mods = collecterModificateurs()
+
     // On re-tire une mission pour chaque joueur à chaque fleur (sinon la mission
     // reste identique toute la partie). Le rôle, lui, ne change pas.
     await Promise.all(joueurs.map(j =>
@@ -176,12 +193,17 @@ export default function TablePage() {
       return
     }
 
-    await supabase.from('games').update({
+    const payload = {
       phase: 'FLEUR_EN_COURS',
       fleur_index: nextIndex,
       resultat_fleur: null,
       vote_lance: false,
-    }).eq('id', id)
+    }
+    const { error } = await supabase.from('games').update({ ...payload, modificateurs_actifs: mods }).eq('id', id)
+    if (error) {
+      // Fallback si la colonne modificateurs_actifs n'existe pas encore (migration 004 non appliquée).
+      await supabase.from('games').update(payload).eq('id', id)
+    }
   }
 
   async function continuerApresCons() {
@@ -366,6 +388,20 @@ export default function TablePage() {
               </p>
             </div>
 
+            {modsActifs.length > 0 && (
+              <div className="card-bloom p-4 w-full border-2 border-bloom-gold/60">
+                <p className="font-title text-sm text-bloom-violet-dark mb-2">{t('mod_actifs_titre', lang)}</p>
+                <ul className="flex flex-col gap-2 text-left">
+                  {modsActifs.map((m, i) => (
+                    <li key={i} className="text-sm text-bloom-gray-dark flex gap-2">
+                      <span className={`shrink-0 mt-1.5 w-2 h-2 rounded-full ${m.role === 'ronce' ? 'bg-bloom-rose' : 'bg-bloom-green'}`} />
+                      <span>{m.texte}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {requis && (
               <div className="card-bloom p-5 w-full">
                 <h3 className="font-title text-lg text-bloom-violet-dark mb-4">{t('ressources_requises', lang)}</h3>
@@ -398,9 +434,15 @@ export default function TablePage() {
                       )
                     })}
                 </div>
+                {ajust.requisModifie && (
+                  <p className="text-bloom-violet-medium text-sm mt-3">
+                    {t('ressources_requises', lang)} : {ajust.requisTotal} <span className="font-normal">{t('modifie', lang)}</span>
+                  </p>
+                )}
                 {fleurConfig && (
                   <p className="text-bloom-rose text-base font-semibold mt-4">
-                    {t('max_effets', lang)} {fleurConfig.qn} {t('effets_neg_toleres', lang)}
+                    {t('max_effets', lang)} {ajust.qn} {t('effets_neg_toleres', lang)}
+                    {ajust.qnModifie && <span className="text-bloom-violet-medium font-normal"> {t('modifie', lang)}</span>}
                   </p>
                 )}
               </div>
@@ -456,9 +498,24 @@ export default function TablePage() {
               </p>
             </div>
 
-            <div className="card-bloom p-4 w-full text-center">
-              <p className="text-sm text-bloom-violet-medium">{t('modificateurs', lang)}</p>
-            </div>
+            {(() => {
+              const aVenir = collecterModificateurs()
+              return (
+                <div className="card-bloom p-4 w-full">
+                  <p className="text-sm text-bloom-violet-medium text-center">{t('modificateurs', lang)}</p>
+                  {aVenir.length > 0 && (
+                    <ul className="flex flex-col gap-2 text-left mt-3">
+                      {aVenir.map((m, i) => (
+                        <li key={i} className="text-sm text-bloom-gray-dark flex gap-2">
+                          <span className={`shrink-0 mt-1.5 w-2 h-2 rounded-full ${m.role === 'ronce' ? 'bg-bloom-rose' : 'bg-bloom-green'}`} />
+                          <span>{m.texte}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )
+            })()}
 
             <button onClick={continuerApresCons} className="btn-bloom w-full">
               {fleurIndex === 0 ? t('continuer', lang) : t('continuer_vote', lang)}
