@@ -23,17 +23,49 @@ export const DECK_COMPOSITION: Record<string, number> = {
 // ─── Missions ──────────────────────────────────────────────────────────────
 
 export const JARDINIER_MISSIONS = [
-  { id: 'silence_sacre',       texte: "Ne dis rien pendant toute la phase de discussion" },
-  { id: 'premier_bourgeon',    texte: "Sois le premier joueur à poser ta carte" },
-  { id: 'instinct_botanique',  texte: "Joue exactement la ressource la plus demandée par la fleur" },
-  { id: 'gardien_fleurs',      texte: "Ne parle pas de tes cartes mais pose sans hésiter" },
+  {
+    id: 'silence_sacre',
+    texte: "Ne prononce aucun mot pendant toute la phase de discussion de cette fleur.",
+    modificateur: "Fleur suivante : elle accepte une ressource en plus ou en moins sans se faner (appliqué au résultat final, après le Vent Mauvais).",
+  },
+  {
+    id: 'premier_bourgeon',
+    texte: "Sois le premier joueur à poser ta carte de contribution lors du premier tour de cette fleur.",
+    modificateur: "Fleur suivante : le Grand Arbre retire un effet négatif actif avant la révélation du premier tour.",
+  },
+  {
+    id: 'instinct_botanique',
+    texte: "Joue exactement la ressource la plus demandée par la fleur active pendant ce tour.",
+    modificateur: "Fleur suivante : le quota d'effets négatifs tolérés est augmenté de 1.",
+  },
+  {
+    id: 'gardien_fleurs',
+    texte: "Ne parle pas de tes cartes pendant la discussion, mais pose ta contribution sans hésiter.",
+    modificateur: "Fleur suivante : si elle manque ou dépasse d'exactement une ressource au premier tour, celui-ci est rejoué sans débat.",
+  },
 ]
 
 export const RONCE_MISSIONS = [
-  { id: 'racines_envahissantes', texte: "Convaincs au moins 1 joueur de jouer la même ressource que toi" },
-  { id: 'penurie',               texte: "Annonce que tu n'as pas la ressource requise alors que tu l'as" },
-  { id: 'epine_cachee',          texte: "Joue une carte négative lors de cette fleur" },
-  { id: 'innocence_trompeuse',   texte: "Ne joue aucune carte négative durant toute cette fleur" },
+  {
+    id: 'racines_envahissantes',
+    texte: "Convaincs au moins un joueur de jouer la même ressource que celle que tu annonces, créant un surplus.",
+    modificateur: "Fleur suivante : le quota exact de ressources requis est réduit de 1.",
+  },
+  {
+    id: 'penurie',
+    texte: "Pendant la discussion, affirme que tu ne possèdes pas la ressource requise alors que tu l'as.",
+    modificateur: "Fleur suivante : une ressource révélée au premier tour sera neutralisée au hasard.",
+  },
+  {
+    id: 'epine_cachee',
+    texte: "Joue au moins une carte à effet négatif pendant cette fleur.",
+    modificateur: "Fleur suivante : le quota d'effets négatifs tolérés est réduit de 1.",
+  },
+  {
+    id: 'innocence_trompeuse',
+    texte: "Ne joue aucune carte négative durant toute cette fleur.",
+    modificateur: "Fleur suivante : la phase de vote d'accusation peut être désactivée après la prochaine fleur fanée.",
+  },
 ]
 
 function shuffle<T>(array: T[]): T[] {

@@ -239,6 +239,11 @@ export default function PlayerPage() {
               <div className={`w-full p-4 ${estRonce ? 'card-ronce' : 'card-bloom'}`}>
                 <p className="font-title text-sm text-bloom-black mb-1">{t('ta_mission', lang)}</p>
                 <p className="text-sm text-bloom-gray-dark">{player.mission.texte}</p>
+                {player.mission.modificateur && (
+                  <p className="text-xs text-bloom-violet-medium italic mt-2 pt-2 border-t border-bloom-violet-light/30">
+                    {player.mission.modificateur}
+                  </p>
+                )}
               </div>
             )}
 
@@ -300,6 +305,11 @@ export default function PlayerPage() {
                   <div className={`rounded-xl p-4 mt-5 text-left ${estRonce ? 'bg-bloom-cream' : 'bg-bloom-violet-pale'}`}>
                     <p className="font-title text-base text-bloom-black mb-1">{t('mission_secrete', lang)}</p>
                     <p className="text-base text-bloom-gray-dark">{player.mission.texte}</p>
+                    {player.mission.modificateur && (
+                      <p className="text-xs text-bloom-violet-medium italic mt-2 pt-2 border-t border-bloom-violet-light/30">
+                        {player.mission.modificateur}
+                      </p>
+                    )}
                   </div>
                 )}
                 <button

@@ -160,8 +160,10 @@ export default function TablePage() {
   }
 
   async function avancerVersFleur(nextIndex: number) {
+    // On re-tire une mission pour chaque joueur à chaque fleur (sinon la mission
+    // reste identique toute la partie). Le rôle, lui, ne change pas.
     await Promise.all(joueurs.map(j =>
-      supabase.from('players').update({ mission_resultat: null }).eq('id', j.id)
+      supabase.from('players').update({ mission_resultat: null, mission: tirerMission(j.role) }).eq('id', j.id)
     ))
     setResultatVote(null)
     setJoueurRevele(null)
